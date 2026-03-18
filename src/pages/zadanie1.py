@@ -8,56 +8,78 @@ SIGNAL_REGISTRY = {
         "name": "Szum o rozkładzie jednostajnym (S1)",
         "func": fn.generate_uniform_noise,
         "params": ["A", "t1", "d", "fs"],
+        "is_periodic": False,
+        "is_continuous": True,
     },
     "S2": {
         "name": "Szum gaussowski (S2)",
         "func": fn.generate_gaussian_noise,
         "params": ["A", "t1", "d", "fs"],
+        "is_periodic": False,
+        "is_continuous": True,
     },
     "S3": {
         "name": "Sygnał sinusoidalny (S3)",
         "func": fn.generate_sine,
         "params": ["A", "T", "t1", "d", "fs"],
+        "is_periodic": True,
+        "is_continuous": True,
     },
     "S4": {
         "name": "Sygnał sinusoidalny wyprostowany jednopołówkowo (S4)",
         "func": fn.generate_sine_wyprostowany_jednopolowkowo,
         "params": ["A", "T", "t1", "d", "fs"],
+        "is_periodic": True,
+        "is_continuous": True,
     },
     "S5": {
         "name": "Sygnał sinusoidalny wyprostowany dwupołówkowo (S5)",
         "func": fn.generate_sine_wyprostowany_dwupolowkowo,
         "params": ["A", "T", "t1", "d", "fs"],
+        "is_periodic": True,
+        "is_continuous": True,
     },
     "S6": {
         "name": "Sygnał prostokątny (S6)",
         "func": fn.generate_square,
         "params": ["A", "T", "t1", "d", "kw", "fs"],
+        "is_periodic": True,
+        "is_continuous": True,
     },
     "S7": {
         "name": "Sygnał prostokątny symetryczny (S7)",
         "func": fn.generate_symmetric_square,
         "params": ["A", "T", "t1", "d", "kw", "fs"],
+        "is_periodic": True,
+        "is_continuous": True,
     },
     "S8": {
         "name": "Sygnał trójkątny (S8)",
         "func": fn.generate_triangle,
         "params": ["A", "T", "t1", "d", "kw", "fs"],
+        "is_periodic": True,
+        "is_continuous": True,
     },
     "S9": {
         "name": "Skok jednostkowy (S9)",
         "func": fn.unit_step,
         "params": ["A", "t1", "d", "ts", "fs"],
+        "is_periodic": False,
+        "is_continuous": True,
     },
     "S10": {
         "name": "Impuls jednostkowy (S10)",
-        "func": lambda x: (np.array([0]), np.array([0])),
-        "params": ["A", "ns", "n1", "l", "fs"],
+        "func": fn.generate_unit_impulse,
+        "params": ["A", "ns", "n1", "l", "f"],
+        "is_periodic": False,
+        "is_continuous": False,
     },
     "S11": {
         "name": "Szum impulsowy (S11)",
-        "func": lambda x: (np.array([0]), np.array([0])),
+        "func": fn.generate_impulse_noise,
         "params": ["A", "t1", "d", "f", "p", "fs"],
+        "is_periodic": False,
+        "is_continuous": False,
     },
 }
 
@@ -89,6 +111,72 @@ def save_signal(t, y, metadata):
 
 def load_signal(file_buffer):
     pass
+
+
+def get_analysis_data(x_vals, y_vals, signals):
+    info = {
+        "used_full_periods": False,
+        "full_periods": None,
+        "period": 0,
+        "reason": "",
+    }
+
+    if x_vals is None or y_vals is None or len(y_vals) == 0:
+        info["reason"] = "Brak danych wejściowych."
+        return x_vals, y_vals, info
+
+    active_signals = [signal for signal in signals if "data" in signal]
+    if len(active_signals) != 1:
+        info["reason"] = (
+            "Dla sygnału złożonego statystyki i histogram liczone są z całego zakresu."
+        )
+        return x_vals, y_vals, info
+
+    signal_data = active_signals[0]
+    signal_config = SIGNAL_REGISTRY.get(signal_data.get("type"), {})
+
+    if not (
+        signal_config.get("is_periodic", False)
+        and signal_config.get("is_continuous", False)
+    ):
+        info["reason"] = "Sygnał nie jest jednocześnie okresowy i ciągły."
+        return x_vals, y_vals, info
+
+    period = signal_data.get("params", {}).get("T")
+    if period is None or period <= 0:
+        info["reason"] = "Brak poprawnego okresu T."
+        return x_vals, y_vals, info
+
+    duration = float(x_vals[-1] - x_vals[0])
+    full_periods = int(np.floor(duration / period + 1e-12))
+
+    if full_periods <= 0:
+        info["period"] = period
+        info["full_periods"] = 0
+        info["reason"] = "W wybranym zakresie czasu nie ma pełnego okresu."
+        return x_vals[:0], y_vals[:0], info
+
+    end_time = float(x_vals[0] + full_periods * period)
+    mask = x_vals <= (end_time + 1e-12)
+    t_for_analysis = x_vals[mask]
+    y_for_analysis = y_vals[mask]
+
+    info["used_full_periods"] = True
+    info["full_periods"] = full_periods
+    info["period"] = period
+    return t_for_analysis, y_for_analysis, info
+
+
+def calculate_signal_metrics(signal):
+    y = np.asarray(signal)
+    power = np.mean(np.square(y))
+    return {
+        "mean": np.mean(y),
+        "mean_abs": np.mean(np.abs(y)),
+        "rms": np.sqrt(power),
+        "variance": np.var(y),
+        "power": power,
+    }
 
 
 def render_signal_params(signal_idx, signal_data):
@@ -147,6 +235,53 @@ def render_signal_params(signal_idx, signal_data):
             value=signal_data.get("params", {}).get("ts", 0.5),
             step=0.1,
             key=f"ts_{signal_idx}",
+        )
+
+    if "ns" in required_params:
+        params["ns"] = st.sidebar.number_input(
+            "Numer próbki impulsu (ns)",
+            value=int(signal_data.get("params", {}).get("ns", 0)),
+            step=1,
+            key=f"ns_{signal_idx}",
+        )
+
+    if "n1" in required_params:
+        params["n1"] = st.sidebar.number_input(
+            "Numer pierwszej próbki (n1)",
+            value=int(signal_data.get("params", {}).get("n1", 0)),
+            step=1,
+            key=f"n1_{signal_idx}",
+        )
+
+    if "l" in required_params:
+        params["l"] = st.sidebar.number_input(
+            "Liczba próbek (l)",
+            min_value=1,
+            value=int(signal_data.get("params", {}).get("l", 100)),
+            step=1,
+            key=f"l_{signal_idx}",
+        )
+
+    if "f" in required_params:
+        params["f"] = st.sidebar.number_input(
+            "Częstotliwość próbkowania dyskretnego (f)",
+            min_value=1.0,
+            value=float(
+                signal_data.get("params", {}).get(
+                    "f", st.session_state.global_fs
+                )
+            ),
+            step=10.0,
+            key=f"f_{signal_idx}",
+        )
+
+    if "p" in required_params:
+        params["p"] = st.sidebar.slider(
+            "Prawdopodobieństwo impulsu (p)",
+            0.0,
+            1.0,
+            float(signal_data.get("params", {}).get("p", 0.1)),
+            key=f"p_{signal_idx}",
         )
 
     return selected_key, params, current_signal_config
@@ -216,6 +351,12 @@ if st.sidebar.button("Reset", use_container_width=True):
             or key.startswith("A_")
             or key.startswith("T_")
             or key.startswith("kw_")
+            or key.startswith("ts_")
+            or key.startswith("ns_")
+            or key.startswith("n1_")
+            or key.startswith("l_")
+            or key.startswith("f_")
+            or key.startswith("p_")
         ):
             del st.session_state[key]
     st.session_state.signals = [
@@ -312,6 +453,16 @@ for i, signal_data in enumerate(st.session_state.signals):
         if result_t is not None and result_y is not None:
             result_t = result_t[: len(result_y)]
 
+analysis_t, analysis_y, analysis_info = get_analysis_data(
+    result_t, result_y, st.session_state.signals
+)
+
+active_signals = [signal for signal in st.session_state.signals if "data" in signal]
+only_discrete_signals = bool(active_signals) and all(
+    not SIGNAL_REGISTRY[signal["type"]].get("is_continuous", True)
+    for signal in active_signals
+)
+
 col1, col2 = st.columns([2, 1])
 
 with col1:
@@ -320,13 +471,22 @@ with col1:
 
     if result_t is not None and result_y is not None:
         combined_label = " ".join(signal_labels)
-        ax.plot(
-            result_t,
-            result_y,
-            label=combined_label,
-            color="royalblue",
-            linewidth=1.5,
-        )
+        if only_discrete_signals:
+            ax.scatter(
+                result_t,
+                result_y,
+                label=combined_label,
+                color="royalblue",
+                s=16,
+            )
+        else:
+            ax.plot(
+                result_t,
+                result_y,
+                label=combined_label,
+                color="royalblue",
+                linewidth=1.5,
+            )
 
     ax.set_xlabel("Czas [s]")
     ax.set_ylabel("Wartość")
@@ -340,9 +500,9 @@ with col2:
 
     fig_hist, ax_hist = plt.subplots(figsize=(4, 4))
 
-    if result_y is not None:
+    if analysis_y is not None and len(analysis_y) > 0:
         counts, edges, patches = ax_hist.hist(
-            result_y,
+            analysis_y,
             bins=st.session_state.histogram_bins,
             color="skyblue",
             edgecolor="black",
@@ -365,6 +525,17 @@ with col2:
         ax_hist.set_xticklabels(
             [f"{val:.2f}" for val in tick_positions], rotation=45, ha="right"
         )
+    else:
+        ax_hist.text(
+            0.5,
+            0.5,
+            "Brak danych\ndo histogramu",
+            ha="center",
+            va="center",
+            transform=ax_hist.transAxes,
+        )
+        ax_hist.set_xlabel("Wartość")
+        ax_hist.set_ylabel("Liczebność")
 
     plt.tight_layout()
 
@@ -426,9 +597,23 @@ with c1:
 
 with c2:
     st.markdown("### Parametry wyliczone")
-    if result_y is not None:
-        st.text(f"Liczba próbek: {len(result_y)}")
-        st.text(f"Min: {np.min(result_y):.2f}")
-        st.text(f"Max: {np.max(result_y):.2f}")
+    if analysis_y is not None and len(analysis_y) > 0:
+        metrics = calculate_signal_metrics(analysis_y)
+        st.text(f"Liczba próbek do obliczeń: {len(analysis_y)}")
+        st.text(f"Wartość średnia: {metrics['mean']:.6f}")
+        st.text(f"Wartość średnia bezwzględna: {metrics['mean_abs']:.6f}")
+        st.text(f"Wartość skuteczna (RMS): {metrics['rms']:.6f}")
+        st.text(f"Wariancja: {metrics['variance']:.6f}")
+        st.text(f"Moc średnia: {metrics['power']:.6f}")
+
+        if analysis_info["used_full_periods"]:
+            st.caption(
+                "Do obliczeń i histogramu użyto "
+                f"{analysis_info['full_periods']} pełnych okresów (T={analysis_info['period']})."
+            )
+        elif analysis_info["reason"]:
+            st.caption(analysis_info["reason"])
     else:
-        st.text("Brak danych")
+        st.text("Brak danych do obliczeń")
+        if analysis_info["reason"]:
+            st.caption(analysis_info["reason"])
