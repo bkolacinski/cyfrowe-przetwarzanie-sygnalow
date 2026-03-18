@@ -163,7 +163,7 @@ def generate_unit_impulse(params):
         f = 1.0
 
     n = np.arange(n1, n1 + l, dtype=int)
-    y = np.where(n == ns, A, 0.0)
+    y = np.where(n == ns, A, 0.5 * A)
     t = t1 + (n - n1) / f
 
     return t, y

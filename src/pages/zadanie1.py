@@ -463,11 +463,15 @@ only_discrete_signals = bool(active_signals) and all(
     for signal in active_signals
 )
 
+plot_height = 4.0
+signal_figsize = (8, plot_height)
+hist_figsize = (4, plot_height)
+
 col1, col2 = st.columns([2, 1])
 
 with col1:
     st.subheader("Wykres wartości od czasu")
-    fig, ax = plt.subplots(figsize=(8, 4))
+    fig, ax = plt.subplots(figsize=signal_figsize)
 
     if result_t is not None and result_y is not None:
         combined_label = " ".join(signal_labels)
@@ -493,17 +497,19 @@ with col1:
     ax.grid(True, linestyle="--", alpha=0.7)
     ax.axhline(0, color="black", linewidth=0.8)
 
-    st.pyplot(fig)
+    fig.tight_layout()
+    st.pyplot(fig, width="stretch")
 
 with col2:
     st.subheader("Histogram")
 
-    fig_hist, ax_hist = plt.subplots(figsize=(4, 4))
+    fig_hist, ax_hist = plt.subplots(figsize=hist_figsize)
+    current_hist_bins = st.session_state.histogram_bins
 
     if analysis_y is not None and len(analysis_y) > 0:
         counts, edges, patches = ax_hist.hist(
             analysis_y,
-            bins=st.session_state.histogram_bins,
+            bins=current_hist_bins,
             color="skyblue",
             edgecolor="black",
         )
@@ -537,14 +543,13 @@ with col2:
         ax_hist.set_xlabel("Wartość")
         ax_hist.set_ylabel("Liczebność")
 
-    plt.tight_layout()
+    fig_hist.tight_layout()
+    st.pyplot(fig_hist, width="stretch")
 
-    st.pyplot(fig_hist)
-
-    st.session_state.histogram_bins = st.select_slider(
+    st.select_slider(
         "Liczba przedziałów histogramu",
         options=np.linspace(5, 20, num=16, dtype=int),
-        value=st.session_state.histogram_bins,
+        key="histogram_bins",
     )
 
 st.divider()
