@@ -1,7 +1,9 @@
-import functions as fn
 import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
+
+import functions as fn
+import signal_io
 
 SIGNAL_REGISTRY = {
     "S1": {
@@ -106,11 +108,11 @@ def signal_divide(y1, y2):
 
 
 def save_signal(t, y, metadata):
-    pass
+    return signal_io.save_signal(t, y, metadata)
 
 
 def load_signal(file_buffer):
-    pass
+    return signal_io.load_signal(file_buffer)
 
 
 def get_analysis_data(x_vals, y_vals, signals):
@@ -315,6 +317,9 @@ if "global_d" not in st.session_state:
 if "prev_global_d" not in st.session_state:
     st.session_state.prev_global_d = 5.0
 
+if "last_loaded_file_id" not in st.session_state:
+    st.session_state.last_loaded_file_id = None
+
 st.sidebar.header("Ustawienia globalne")
 st.session_state.global_fs = st.sidebar.number_input(
     "Częstotliwość próbkowania (Hz)",
@@ -388,6 +393,20 @@ for i, signal_data in enumerate(st.session_state.signals):
             f"Operacja: {operation_names.get(current_op, 'Brak')}"
         )
 
+    if signal_data.get("type") == "LOADED":
+        st.sidebar.info("Wczytany sygnał z pliku")
+        if "data" in signal_data:
+            t_l, y_l = signal_data["data"]
+            st.sidebar.caption(
+                f"Próbki: {len(y_l)}, zakres: {t_l[0]:.3f} – {t_l[-1]:.3f} s"
+            )
+        if i > 0:
+            if st.sidebar.button(f"Usuń sygnał {i + 1}", key=f"remove_{i}"):
+                st.session_state.signals.pop(i)
+                st.rerun()
+        st.sidebar.divider()
+        continue
+
     selected_key, params, config = render_signal_params(i, signal_data)
 
     needs_update = (
@@ -419,6 +438,7 @@ if global_params_changed:
 
     st.sidebar.divider()
 
+
 result_t = None
 result_y = None
 signal_labels = []
@@ -429,7 +449,12 @@ for i, signal_data in enumerate(st.session_state.signals):
 
     t, y = signal_data["data"]
     signal_type = signal_data["type"]
-    signal_name = SIGNAL_REGISTRY[signal_type]["name"]
+
+    # Handle loaded signals
+    if signal_type == "LOADED":
+        signal_name = "Wczytany sygnał"
+    else:
+        signal_name = SIGNAL_REGISTRY[signal_type]["name"]
 
     if i == 0:
         result_t = t
@@ -457,9 +482,12 @@ analysis_t, analysis_y, analysis_info = get_analysis_data(
     result_t, result_y, st.session_state.signals
 )
 
-active_signals = [signal for signal in st.session_state.signals if "data" in signal]
+active_signals = [
+    signal for signal in st.session_state.signals if "data" in signal
+]
 only_discrete_signals = bool(active_signals) and all(
-    not SIGNAL_REGISTRY[signal["type"]].get("is_continuous", True)
+    signal["type"] in SIGNAL_REGISTRY
+    and not SIGNAL_REGISTRY[signal["type"]].get("is_continuous", True)
     for signal in active_signals
 )
 
@@ -597,8 +625,33 @@ with c1:
             save_signal(result_t, result_y, {})
 
     uploaded_file = st.file_uploader("Wczytaj sygnał", type="bin")
-    if uploaded_file:
-        load_signal(uploaded_file)
+    if uploaded_file is not None:
+        file_id = f"{uploaded_file.name}_{uploaded_file.size}"
+        if st.session_state.last_loaded_file_id != file_id:
+            result = load_signal(uploaded_file)
+            if result and result[0] is not None:
+                st.session_state.last_loaded_file_id = file_id
+                st.rerun()
+            else:
+                st.error("❌ Nie udało się wczytać danych z pliku")
+
+    if (
+        st.session_state.signals
+        and st.session_state.signals[0].get("type") == "LOADED"
+    ):
+        loaded_signal = st.session_state.signals[0]
+        if "data" in loaded_signal:
+            t_loaded, y_loaded = loaded_signal["data"]
+            st.success(f"Sygnał wczytany pomyślnie!")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric("Liczba próbek", len(y_loaded))
+                st.metric(
+                    "Zakres czasowy", f"{t_loaded[0]:.3f} - {t_loaded[-1]:.3f}"
+                )
+            with col2:
+                st.metric("Min wartość", f"{y_loaded.min():.3f}")
+                st.metric("Max wartość", f"{y_loaded.max():.3f}")
 
 with c2:
     st.markdown("### Parametry wyliczone")
