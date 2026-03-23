@@ -22,8 +22,8 @@
 
 \setlength{\textheight}{21cm}
 
-\title{{\bf Zadanie nr 1 -- Generacja sygna\l{}u i szumu}\linebreak
-Cyfrowe Przetwarzanie Sygna\l{}\'ow}
+\title{{\bf Zadanie nr 1 -- Generacja sygnału i szumu}\linebreak
+Cyfrowe Przetwarzanie Sygnałów}
 \author{Student, Nr albumu}
 \date{\today}
 
@@ -36,41 +36,41 @@ Cyfrowe Przetwarzanie Sygna\l{}\'ow}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Cel zadania}
 
-Celem zadania jest implementacja aplikacji do generacji i analizy sygna\l{}\'ow
-oraz szum\'ow cyfrowych. Aplikacja umo\.zliwia generowanie jedenastu r\'o\.znych
-rodzaj\'ow sygna\l{}\'ow, wykonywanie podstawowych operacji arytmetycznych
-mi\k{e}dzy sygna\l{}ami (dodawanie, odejmowanie, mno\.zenie, dzielenie),
-obliczanie parametr\'ow statystycznych oraz prezentacj\k{e} histogramu
-rozk\l{}adu warto\'sci. Dodatkowo zaimplementowano obs\l{}ug\k{e} zapisu
-i odczytu sygna\l{}u do/z pliku binarnego.
+Celem zadania jest implementacja aplikacji do generacji i analizy sygnałów
+oraz szumów cyfrowych. Aplikacja umożliwia generowanie jedenastu różnych
+rodzajów sygnałów, wykonywanie podstawowych operacji arytmetycznych
+między sygnałami (dodawanie, odejmowanie, mnożenie, dzielenie),
+obliczanie parametrów statystycznych oraz prezentację histogramu
+rozkładu wartości. Dodatkowo zaimplementowano obsługę zapisu
+i odczytu sygnału do/z pliku binarnego.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Wst\k{e}p teoretyczny}
+\section{Wstęp teoretyczny}
 
-Sygna\l{} dyskretny jest sekwencj\k{a} warto\'sci uzyskan\k{a} przez
-pr\'obkowanie sygna\l{}u ci\k{a}g\l{}ego z cz\k{e}stotliwo\'sci\k{a}
-pr\'obkowania $f_s$~\cite{oppenheim1999discrete}. Zgodnie z twierdzeniem
-Nyquista--Shannona, aby mo\.zliwa by\l{}a wierna rekonstrukcja sygna\l{}u,
-cz\k{e}stotliwo\'s\'c pr\'obkowania musi by\'c co najmniej dwukrotnie wy\.zsza
-od najwy\.zszej cz\k{e}stotliwo\'sci sk\l{}adowej sygna\l{}u.
+Sygnał dyskretny jest sekwencją wartości uzyskaną przez
+próbkowanie sygnału ciągłego z częstotliwością
+próbkowania $f_s$~\cite{oppenheim1999discrete}. Zgodnie z twierdzeniem
+Nyquista--Shannona, aby możliwa była wierna rekonstrukcja sygnału,
+częstotliwość próbkowania musi być co najmniej dwukrotnie wyższa
+od najwyższej częstotliwości składowej sygnału.
 
-Do podstawowych parametr\'ow statystycznych sygna\l{}u nale\.z\k{a}
+Do podstawowych parametrów statystycznych sygnału należą
 \cite{proakis2006dsp}:
 
 \begin{itemize}
-  \item Warto\'s\'c \'srednia:
+  \item Wartość średnia:
     \begin{equation}
       \bar{y} = \frac{1}{N} \sum_{n=0}^{N-1} y[n]
       \label{eq:mean}
     \end{equation}
 
-  \item Warto\'s\'c \'srednia bezwzgl\k{e}dna:
+  \item Wartość średnia bezwzględna:
     \begin{equation}
       \overline{|y|} = \frac{1}{N} \sum_{n=0}^{N-1} |y[n]|
       \label{eq:mean_abs}
     \end{equation}
 
-  \item Warto\'s\'c skuteczna (RMS -- Root Mean Square):
+  \item Wartość skuteczna (RMS -- Root Mean Square):
     \begin{equation}
       y_{\mathrm{RMS}} = \sqrt{\frac{1}{N} \sum_{n=0}^{N-1} y[n]^2}
       \label{eq:rms}
@@ -82,40 +82,40 @@ Do podstawowych parametr\'ow statystycznych sygna\l{}u nale\.z\k{a}
       \label{eq:variance}
     \end{equation}
 
-  \item Moc \'srednia:
+  \item Moc średnia:
     \begin{equation}
       P = \frac{1}{N} \sum_{n=0}^{N-1} y[n]^2
       \label{eq:power}
     \end{equation}
 \end{itemize}
 
-Dla sygna\l{}\'ow okresowych obliczenia statystyczne s\k{a} wyznaczane
-na podstawie pe\l{}nych okres\'ow, co pozwala na unikni\k{e}cie b\l{}\k{e}d\'ow
-wynikaj\k{a}cych z niekompletnych cykl\'ow~\cite{lyons2011dsp}.
+Dla sygnałów okresowych obliczenia statystyczne są wyznaczane
+na podstawie pełnych okresów, co pozwala na uniknięcie błędów
+wynikających z niekompletnych cyklów~\cite{lyons2011dsp}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Eksperymenty i wyniki}
 
-Eksperymenty przeprowadzono przy u\.zyciu aplikacji internetowej zbudowanej
-w oparciu o bibliotek\k{e} Streamlit. Obliczenia numeryczne realizowane s\k{a}
+Eksperymenty przeprowadzono przy użyciu aplikacji internetowej zbudowanej
+w oparciu o bibliotekę Streamlit. Obliczenia numeryczne realizowane są
 z wykorzystaniem biblioteki NumPy~\cite{numpy2020}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Eksperyment nr 1 -- Generacja sygna\l{}\'ow podstawowych}
+\subsection{Eksperyment nr 1 -- Generacja sygnałów podstawowych}
 
-\subsubsection{Za\l{}o\.zenia}
+\subsubsection{Założenia}
 
-Zaimplementowano nast\k{e}puj\k{a}ce rodzaje sygna\l{}\'ow:
+Zaimplementowano następujące rodzaje sygnałów:
 
 \begin{itemize}
-  \item \textbf{S1} -- Szum o rozk\l{}adzie jednostajnym
+  \item \textbf{S1} -- Szum o rozkładzie jednostajnym
   \item \textbf{S2} -- Szum gaussowski
-  \item \textbf{S3} -- Sygna\l{} sinusoidalny
-  \item \textbf{S4} -- Sygna\l{} sinusoidalny wyprostowany jednopo\l{}\'owkowo
-  \item \textbf{S5} -- Sygna\l{} sinusoidalny wyprostowany dwupo\l{}\'owkowo
-  \item \textbf{S6} -- Sygna\l{} prostok\k{a}tny
-  \item \textbf{S7} -- Sygna\l{} prostok\k{a}tny symetryczny
-  \item \textbf{S8} -- Sygna\l{} tr\'ojk\k{a}tny
+  \item \textbf{S3} -- Sygnał sinusoidalny
+  \item \textbf{S4} -- Sygnał sinusoidalny wyprostowany jednopołówkowo
+  \item \textbf{S5} -- Sygnał sinusoidalny wyprostowany dwupołówkowo
+  \item \textbf{S6} -- Sygnał prostokątny
+  \item \textbf{S7} -- Sygnał prostokątny symetryczny
+  \item \textbf{S8} -- Sygnał trójkątny
   \item \textbf{S9} -- Skok jednostkowy
   \item \textbf{S10} -- Impuls jednostkowy
   \item \textbf{S11} -- Szum impulsowy
@@ -123,54 +123,54 @@ Zaimplementowano nast\k{e}puj\k{a}ce rodzaje sygna\l{}\'ow:
 
 \subsubsection{Przebieg}
 
-Sygna\l{} sinusoidalny (S3) opisany jest r\'ownaniem:
+Sygnał sinusoidalny (S3) opisany jest równaniem:
 \begin{equation}
   y(t) = A \cdot \sin\!\left(\frac{2\pi}{T}(t - t_1)\right)
   \label{eq:sine}
 \end{equation}
-gdzie $A$ jest amplitud\k{a}, $T$ okresem podstawowym, a $t_1$ czasem
-pocz\k{a}tkowym.
+gdzie $A$ jest amplitudą, $T$ okresem podstawowym, a $t_1$ czasem
+początkowym.
 
-Sygna\l{} sinusoidalny wyprostowany jednopo\l{}\'owkowo (S4) przyjmuje
-posta\'c:
+Sygnał sinusoidalny wyprostowany jednopołówkowo (S4) przyjmuje
+postać:
 \begin{equation}
   y(t) = \begin{cases} A \cdot \sin\!\left(\frac{2\pi}{T}(t - t_1)\right) &
-  \text{je\'sli } \sin(\cdot) > 0 \\ 0 & \text{w przeciwnym razie}
+  \text{jeśli } \sin(\cdot) > 0 \\ 0 & \text{w przeciwnym razie}
   \end{cases}
   \label{eq:sine_half}
 \end{equation}
 
-Sygna\l{} prostok\k{a}tny (S6) z wsp\'o\l{}czynnikiem wype\l{}nienia $k_w$:
+Sygnał prostokątny (S6) z współczynnikiem wypełnienia $k_w$:
 \begin{equation}
-  y(t) = \begin{cases} A & \text{je\'sli } (t \bmod T) < k_w \cdot T \\
+  y(t) = \begin{cases} A & \text{jeśli } (t \bmod T) < k_w \cdot T \\
   0 & \text{w przeciwnym razie} \end{cases}
   \label{eq:square}
 \end{equation}
 
-Szum gaussowski (S2) generowany jest z rozk\l{}adu normalnego
+Szum gaussowski (S2) generowany jest z rozkładu normalnego
 $\mathcal{N}(0,\, A/3)$.
 
 \subsubsection{Rezultat}
 
-W tabeli \ref{tab:sygnaly} zestawiono parametry charakteryzuj\k{a}ce
-poszczeg\'olne typy sygna\l{}\'ow.
+W tabeli \ref{tab:sygnaly} zestawiono parametry charakteryzujące
+poszczególne typy sygnałów.
 
 \begin{table}[h!]
-  \caption{Charakterystyka zaimplementowanych sygna\l{}\'ow}
+  \caption{Charakterystyka zaimplementowanych sygnałów}
   \centering
   \vspace{0.2cm}
   \begin{tabular}{c l c c}
     \hline\hline\\[-0.4cm]
-    \textbf{Symbol} & \textbf{Nazwa} & \textbf{Okresowy} & \textbf{Ci\k{a}g\l{}y} \\[0.1cm]
+    \textbf{Symbol} & \textbf{Nazwa} & \textbf{Okresowy} & \textbf{Ciągły} \\[0.1cm]
     \hline
     S1  & Szum jednostajny              & Nie & Tak \\
     S2  & Szum gaussowski               & Nie & Tak \\
     S3  & Sinusoidalny                  & Tak & Tak \\
-    S4  & Sinusoidalny (1-po\l{}\'owka) & Tak & Tak \\
-    S5  & Sinusoidalny (2-po\l{}\'owki) & Tak & Tak \\
-    S6  & Prostok\k{a}tny               & Tak & Tak \\
-    S7  & Prostok\k{a}tny symetryczny   & Tak & Tak \\
-    S8  & Tr\'ojk\k{a}tny               & Tak & Tak \\
+    S4  & Sinusoidalny (1-połówka) & Tak & Tak \\
+    S5  & Sinusoidalny (2-połówki) & Tak & Tak \\
+    S6  & Prostokątny               & Tak & Tak \\
+    S7  & Prostokątny symetryczny   & Tak & Tak \\
+    S8  & Trójkątny               & Tak & Tak \\
     S9  & Skok jednostkowy              & Nie & Tak \\
     S10 & Impuls jednostkowy            & Nie & Nie \\
     S11 & Szum impulsowy                & Nie & Nie \\[0.1cm]
@@ -181,19 +181,19 @@ poszczeg\'olne typy sygna\l{}\'ow.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\subsection{Eksperyment nr 2 -- Parametry statystyczne sygna\l{}u}
+\subsection{Eksperyment nr 2 -- Parametry statystyczne sygnału}
 
-\subsubsection{Za\l{}o\.zenia}
+\subsubsection{Założenia}
 
-Dla ka\.zdego wygenerowanego sygna\l{}u wyznaczane s\k{a} nast\k{e}puj\k{a}ce
-parametry wed\l{}ug wzor\'ow (\ref{eq:mean})--(\ref{eq:power}): warto\'s\'c
-\'srednia, warto\'s\'c \'srednia bezwzgl\k{e}dna, warto\'s\'c skuteczna RMS,
-wariancja oraz moc \'srednia. Dla sygna\l{}\'ow okresowych obliczenia
-wykonywane s\k{a} na dok\l{}adnie pe\l{}nych okresach.
+Dla każdego wygenerowanego sygnału wyznaczane są następujące
+parametry według wzorów (\ref{eq:mean})--(\ref{eq:power}): wartość
+średnia, wartość średnia bezwzględna, wartość skuteczna RMS,
+wariancja oraz moc średnia. Dla sygnałów okresowych obliczenia
+wykonywane są na dokładnie pełnych okresach.
 
 \subsubsection{Przebieg}
 
-Implementacja funkcji licz\k{a}cej parametry statystyczne:
+Implementacja funkcji liczącej parametry statystyczne:
 
 \begin{lstlisting}
 def calculate_signal_metrics(signal):
@@ -208,26 +208,26 @@ def calculate_signal_metrics(signal):
     }
 \end{lstlisting}
 
-Dla sygna\l{}\'ow okresowych wykrywana jest liczba pe\l{}nych okres\'ow
+Dla sygnałów okresowych wykrywana jest liczba pełnych okresów
 w wybranym przedziale czasu, a obliczenia ograniczane do tych danych.
 
 \subsubsection{Rezultat}
 
-W tabeli \ref{tab:statystyki} przedstawiono warto\'sci parametr\'ow
-statystycznych przyk\l{}adowych sygna\l{}\'ow przy $A=1$, $T=1$~s,
+W tabeli \ref{tab:statystyki} przedstawiono wartości parametrów
+statystycznych przykładowych sygnałów przy $A=1$, $T=1$~s,
 $t_1=0$~s, $d=5$~s, $f_s=1000$~Hz.
 
 \begin{table}[h!]
-  \caption{Parametry statystyczne wybranych sygna\l{}\'ow ($A=1$)}
+  \caption{Parametry statystyczne wybranych sygnałów ($A=1$)}
   \centering
   \vspace{0.2cm}
   \begin{tabular}{l c c c c c}
     \hline\hline\\[-0.4cm]
-    \textbf{Sygna\l{}} & $\bar{y}$ & $\overline{|y|}$ &
+    \textbf{Sygnał} & $\bar{y}$ & $\overline{|y|}$ &
     $y_{\mathrm{RMS}}$ & $\sigma^2$ & $P$ \\[0.1cm]
     \hline
     Sinusoidalny (S3)          & $0$    & $2/\pi$       & $1/\sqrt{2}$ & $1/2$ & $1/2$ \\
-    Prostok\k{a}tny ($k_w=0.5$)& $1/2$  & $1/2$         & $1/\sqrt{2}$ & $1/4$ & $1/2$ \\
+    Prostokątny ($k_w=0.5$)& $1/2$  & $1/2$         & $1/\sqrt{2}$ & $1/4$ & $1/2$ \\
     Skok jednostkowy           & $\approx\!1$ & $\approx\!1$ & $\approx\!1$ & $\approx\!0$ & $\approx\!1$ \\
     Szum jednostajny (S1)      & $\approx\!0$ & $\approx\!0.5$ & $\approx\!0.577$ & $\approx\!0.333$ & $\approx\!0.333$ \\[0.1cm]
     \hline
@@ -237,18 +237,18 @@ $t_1=0$~s, $d=5$~s, $f_s=1000$~Hz.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\subsection{Eksperyment nr 3 -- Operacje na sygna\l{}ach}
+\subsection{Eksperyment nr 3 -- Operacje na sygnałach}
 
-\subsubsection{Za\l{}o\.zenia}
+\subsubsection{Założenia}
 
-Aplikacja umo\.zliwia sk\l{}adanie dw\'och lub wi\k{e}cej sygna\l{}\'ow
-za pomoc\k{a} czterech operacji arytmetycznych: dodawania, odejmowania,
-mno\.zenia i dzielenia. Ka\.zda operacja wykonywana jest pr\'obka po pr\'obce
-na wektorach o r\'ownej d\l{}ugo\'sci.
+Aplikacja umożliwia składanie dwóch lub więcej sygnałów
+za pomocą czterech operacji arytmetycznych: dodawania, odejmowania,
+mnożenia i dzielenia. Każda operacja wykonywana jest próbka po próbce
+na wektorach o równej długości.
 
 \subsubsection{Przebieg}
 
-Operacje realizowane s\k{a} nast\k{e}puj\k{a}cymi funkcjami:
+Operacje realizowane są następującymi funkcjami:
 
 \begin{lstlisting}
 def signal_add(y1, y2):
@@ -267,27 +267,27 @@ def signal_divide(y1, y2):
 \end{lstlisting}
 
 Dzielenie zabezpieczone jest przed dzieleniem przez zero poprzez
-zast\k{a}pienie zerowych warto\'sci ma\l{}\k{a} warto\'sci\k{a} $10^{-10}$.
+zastąpienie zerowych wartości małą wartością $10^{-10}$.
 
 \subsubsection{Rezultat}
 
-Mno\.zenie sygna\l{}u sinusoidalnego przez sygna\l{} prostok\k{a}tny
-pozwala uzyska\'c modulacj\k{e} amplitudy (AM). Dodawanie dw\'och
-sygna\l{}\'ow sinusoidalnych o bliskich cz\k{e}stotliwo\'sciach
+Mnożenie sygnału sinusoidalnego przez sygnał prostokątny
+pozwala uzyskać modulację amplitudy (AM). Dodawanie dwóch
+sygnałów sinusoidalnych o bliskich częstotliwościach
 prowadzi do efektu bicia.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Eksperyment nr 4 -- Zapis i odczyt sygna\l{}u}
+\subsection{Eksperyment nr 4 -- Zapis i odczyt sygnału}
 
-\subsubsection{Za\l{}o\.zenia}
+\subsubsection{Założenia}
 
-Aplikacja umo\.zliwia zapis wygenerowanego lub przetworzonego sygna\l{}u
-do pliku binarnego (format msgpack) oraz jego p\'o\'zniejsze wczytanie.
-Plik zawiera wektor czasu, wektor warto\'sci oraz metadane.
+Aplikacja umożliwia zapis wygenerowanego lub przetworzonego sygnału
+do pliku binarnego (format msgpack) oraz jego późniejsze wczytanie.
+Plik zawiera wektor czasu, wektor wartości oraz metadane.
 
 \subsubsection{Przebieg}
 
-Serializacja sygna\l{}u odbywa si\k{e} przy u\.zyciu biblioteki
+Serializacja sygnału odbywa się przy użyciu biblioteki
 \texttt{msgpack}. Struktura zapisanego pliku:
 
 \begin{lstlisting}
@@ -302,34 +302,34 @@ data = {
 
 \subsubsection{Rezultat}
 
-Zapis i odczyt dzia\l{}a poprawnie dla wszystkich 11 typ\'ow
-sygna\l{}\'ow. Weryfikowana jest sp\'ojno\'s\'c d\l{}ugo\'sci wektor\'ow
-$t$ i $y$ oraz niepusto\'s\'c danych.
+Zapis i odczyt działa poprawnie dla wszystkich 11 typów
+sygnałów. Weryfikowana jest spójność długości wektorów
+$t$ i $y$ oraz niepustość danych.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Wnioski}
 
-Zrealizowana aplikacja pozwala na generowan\k{e} i analiz\k{e} jedenastu
-r\'o\.znych typ\'ow sygna\l{}\'ow dyskretnych. Wyniki eksperyment\'ow
-potwierdzaj\k{a} poprawno\'s\'c implementacji wzor\'ow matematycznych:
-warto\'sci RMS i mocy \'sredniej sygna\l{}u sinusoidalnego s\k{a} zgodne
-z warto\'sciami teoretycznymi ($y_{\mathrm{RMS}} = A/\sqrt{2}$,
-$P = A^2/2$). Zastosowanie pe\l{}nych okres\'ow do oblicze\'n parametr\'ow
-sygna\l{}\'ow okresowych eliminuje b\l{}\k{e}dy zwi\k{a}zane z ko\'ncowym
+Zrealizowana aplikacja pozwala na generowanie i analizę jedenastu
+różnych typów sygnałów dyskretnych. Wyniki eksperymentów
+potwierdzają poprawność implementacji wzorów matematycznych:
+wartości RMS i mocy średniej sygnału sinusoidalnego są zgodne
+z wartościami teoretycznymi ($y_{\mathrm{RMS}} = A/\sqrt{2}$,
+$P = A^2/2$). Zastosowanie pełnych okresów do obliczeń parametrów
+sygnałów okresowych eliminuje błędy związane z końcowym
 efektem okna. Mechanizm zabezpieczenia przed dzieleniem przez zero zapewnia
-stabilno\'s\'c numeryczn\k{a} operacji arytmetycznych.
+stabilność numeryczną operacji arytmetycznych.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Za\l{}\k{a}czniki}
+\section{Załączniki}
 
-Kod \'zr\'od\l{}owy aplikacji dost\k{e}pny jest w repozytorium projektu.
-G\l{}\'owne pliki:
+Kod źródłowy aplikacji dostępny jest w repozytorium projektu.
+Główne pliki:
 
 \begin{itemize}
-  \item \texttt{src/functions.py} -- generatory sygna\l{}\'ow
-  \item \texttt{src/pages/zadanie1.py} -- interfejs u\.zytkownika, operacje i statystyki
-  \item \texttt{src/signal\_io.py} -- zapis i odczyt sygna\l{}u
-  \item \texttt{src/streamlit\_app.py} -- g\l{}\'owny plik aplikacji
+  \item \texttt{src/functions.py} -- generatory sygnałów
+  \item \texttt{src/pages/zadanie1.py} -- interfejs użytkownika, operacje i statystyki
+  \item \texttt{src/signal\_io.py} -- zapis i odczyt sygnału
+  \item \texttt{src/streamlit\_app.py} -- główny plik aplikacji
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
