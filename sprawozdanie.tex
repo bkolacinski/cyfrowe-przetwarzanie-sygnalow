@@ -1,0 +1,340 @@
+\documentclass[12pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\newcommand{\BibTeX}{{\sc Bib}\TeX}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  language=Python,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+}
+
+\setlength{\textheight}{21cm}
+
+\title{{\bf Zadanie nr 1 -- Generacja sygna\l{}u i szumu}\linebreak
+Cyfrowe Przetwarzanie Sygna\l{}\'ow}
+\author{Student, Nr albumu}
+\date{\today}
+
+\begin{document}
+\clearpage\maketitle
+\thispagestyle{empty}
+\newpage
+\setcounter{page}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Cel zadania}
+
+Celem zadania jest implementacja aplikacji do generacji i analizy sygna\l{}\'ow
+oraz szum\'ow cyfrowych. Aplikacja umo\.zliwia generowanie jedenastu r\'o\.znych
+rodzaj\'ow sygna\l{}\'ow, wykonywanie podstawowych operacji arytmetycznych
+mi\k{e}dzy sygna\l{}ami (dodawanie, odejmowanie, mno\.zenie, dzielenie),
+obliczanie parametr\'ow statystycznych oraz prezentacj\k{e} histogramu
+rozk\l{}adu warto\'sci. Dodatkowo zaimplementowano obs\l{}ug\k{e} zapisu
+i odczytu sygna\l{}u do/z pliku binarnego.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Wst\k{e}p teoretyczny}
+
+Sygna\l{} dyskretny jest sekwencj\k{a} warto\'sci uzyskan\k{a} przez
+pr\'obkowanie sygna\l{}u ci\k{a}g\l{}ego z cz\k{e}stotliwo\'sci\k{a}
+pr\'obkowania $f_s$~\cite{oppenheim1999discrete}. Zgodnie z twierdzeniem
+Nyquista--Shannona, aby mo\.zliwa by\l{}a wierna rekonstrukcja sygna\l{}u,
+cz\k{e}stotliwo\'s\'c pr\'obkowania musi by\'c co najmniej dwukrotnie wy\.zsza
+od najwy\.zszej cz\k{e}stotliwo\'sci sk\l{}adowej sygna\l{}u.
+
+Do podstawowych parametr\'ow statystycznych sygna\l{}u nale\.z\k{a}
+\cite{proakis2006dsp}:
+
+\begin{itemize}
+  \item Warto\'s\'c \'srednia:
+    \begin{equation}
+      \bar{y} = \frac{1}{N} \sum_{n=0}^{N-1} y[n]
+      \label{eq:mean}
+    \end{equation}
+
+  \item Warto\'s\'c \'srednia bezwzgl\k{e}dna:
+    \begin{equation}
+      \overline{|y|} = \frac{1}{N} \sum_{n=0}^{N-1} |y[n]|
+      \label{eq:mean_abs}
+    \end{equation}
+
+  \item Warto\'s\'c skuteczna (RMS -- Root Mean Square):
+    \begin{equation}
+      y_{\mathrm{RMS}} = \sqrt{\frac{1}{N} \sum_{n=0}^{N-1} y[n]^2}
+      \label{eq:rms}
+    \end{equation}
+
+  \item Wariancja:
+    \begin{equation}
+      \sigma^2 = \frac{1}{N} \sum_{n=0}^{N-1} \bigl(y[n] - \bar{y}\bigr)^2
+      \label{eq:variance}
+    \end{equation}
+
+  \item Moc \'srednia:
+    \begin{equation}
+      P = \frac{1}{N} \sum_{n=0}^{N-1} y[n]^2
+      \label{eq:power}
+    \end{equation}
+\end{itemize}
+
+Dla sygna\l{}\'ow okresowych obliczenia statystyczne s\k{a} wyznaczane
+na podstawie pe\l{}nych okres\'ow, co pozwala na unikni\k{e}cie b\l{}\k{e}d\'ow
+wynikaj\k{a}cych z niekompletnych cykl\'ow~\cite{lyons2011dsp}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Eksperymenty i wyniki}
+
+Eksperymenty przeprowadzono przy u\.zyciu aplikacji internetowej zbudowanej
+w oparciu o bibliotek\k{e} Streamlit. Obliczenia numeryczne realizowane s\k{a}
+z wykorzystaniem biblioteki NumPy~\cite{numpy2020}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Eksperyment nr 1 -- Generacja sygna\l{}\'ow podstawowych}
+
+\subsubsection{Za\l{}o\.zenia}
+
+Zaimplementowano nast\k{e}puj\k{a}ce rodzaje sygna\l{}\'ow:
+
+\begin{itemize}
+  \item \textbf{S1} -- Szum o rozk\l{}adzie jednostajnym
+  \item \textbf{S2} -- Szum gaussowski
+  \item \textbf{S3} -- Sygna\l{} sinusoidalny
+  \item \textbf{S4} -- Sygna\l{} sinusoidalny wyprostowany jednopo\l{}\'owkowo
+  \item \textbf{S5} -- Sygna\l{} sinusoidalny wyprostowany dwupo\l{}\'owkowo
+  \item \textbf{S6} -- Sygna\l{} prostok\k{a}tny
+  \item \textbf{S7} -- Sygna\l{} prostok\k{a}tny symetryczny
+  \item \textbf{S8} -- Sygna\l{} tr\'ojk\k{a}tny
+  \item \textbf{S9} -- Skok jednostkowy
+  \item \textbf{S10} -- Impuls jednostkowy
+  \item \textbf{S11} -- Szum impulsowy
+\end{itemize}
+
+\subsubsection{Przebieg}
+
+Sygna\l{} sinusoidalny (S3) opisany jest r\'ownaniem:
+\begin{equation}
+  y(t) = A \cdot \sin\!\left(\frac{2\pi}{T}(t - t_1)\right)
+  \label{eq:sine}
+\end{equation}
+gdzie $A$ jest amplitud\k{a}, $T$ okresem podstawowym, a $t_1$ czasem
+pocz\k{a}tkowym.
+
+Sygna\l{} sinusoidalny wyprostowany jednopo\l{}\'owkowo (S4) przyjmuje
+posta\'c:
+\begin{equation}
+  y(t) = \begin{cases} A \cdot \sin\!\left(\frac{2\pi}{T}(t - t_1)\right) &
+  \text{je\'sli } \sin(\cdot) > 0 \\ 0 & \text{w przeciwnym razie}
+  \end{cases}
+  \label{eq:sine_half}
+\end{equation}
+
+Sygna\l{} prostok\k{a}tny (S6) z wsp\'o\l{}czynnikiem wype\l{}nienia $k_w$:
+\begin{equation}
+  y(t) = \begin{cases} A & \text{je\'sli } (t \bmod T) < k_w \cdot T \\
+  0 & \text{w przeciwnym razie} \end{cases}
+  \label{eq:square}
+\end{equation}
+
+Szum gaussowski (S2) generowany jest z rozk\l{}adu normalnego
+$\mathcal{N}(0,\, A/3)$.
+
+\subsubsection{Rezultat}
+
+W tabeli \ref{tab:sygnaly} zestawiono parametry charakteryzuj\k{a}ce
+poszczeg\'olne typy sygna\l{}\'ow.
+
+\begin{table}[h!]
+  \caption{Charakterystyka zaimplementowanych sygna\l{}\'ow}
+  \centering
+  \vspace{0.2cm}
+  \begin{tabular}{c l c c}
+    \hline\hline\\[-0.4cm]
+    \textbf{Symbol} & \textbf{Nazwa} & \textbf{Okresowy} & \textbf{Ci\k{a}g\l{}y} \\[0.1cm]
+    \hline
+    S1  & Szum jednostajny              & Nie & Tak \\
+    S2  & Szum gaussowski               & Nie & Tak \\
+    S3  & Sinusoidalny                  & Tak & Tak \\
+    S4  & Sinusoidalny (1-po\l{}\'owka) & Tak & Tak \\
+    S5  & Sinusoidalny (2-po\l{}\'owki) & Tak & Tak \\
+    S6  & Prostok\k{a}tny               & Tak & Tak \\
+    S7  & Prostok\k{a}tny symetryczny   & Tak & Tak \\
+    S8  & Tr\'ojk\k{a}tny               & Tak & Tak \\
+    S9  & Skok jednostkowy              & Nie & Tak \\
+    S10 & Impuls jednostkowy            & Nie & Nie \\
+    S11 & Szum impulsowy                & Nie & Nie \\[0.1cm]
+    \hline
+  \end{tabular}
+  \label{tab:sygnaly}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{Eksperyment nr 2 -- Parametry statystyczne sygna\l{}u}
+
+\subsubsection{Za\l{}o\.zenia}
+
+Dla ka\.zdego wygenerowanego sygna\l{}u wyznaczane s\k{a} nast\k{e}puj\k{a}ce
+parametry wed\l{}ug wzor\'ow (\ref{eq:mean})--(\ref{eq:power}): warto\'s\'c
+\'srednia, warto\'s\'c \'srednia bezwzgl\k{e}dna, warto\'s\'c skuteczna RMS,
+wariancja oraz moc \'srednia. Dla sygna\l{}\'ow okresowych obliczenia
+wykonywane s\k{a} na dok\l{}adnie pe\l{}nych okresach.
+
+\subsubsection{Przebieg}
+
+Implementacja funkcji licz\k{a}cej parametry statystyczne:
+
+\begin{lstlisting}
+def calculate_signal_metrics(signal):
+    y = np.asarray(signal)
+    power = np.mean(np.square(y))
+    return {
+        "mean":     np.mean(y),
+        "mean_abs": np.mean(np.abs(y)),
+        "rms":      np.sqrt(power),
+        "variance": np.var(y),
+        "power":    power,
+    }
+\end{lstlisting}
+
+Dla sygna\l{}\'ow okresowych wykrywana jest liczba pe\l{}nych okres\'ow
+w wybranym przedziale czasu, a obliczenia ograniczane do tych danych.
+
+\subsubsection{Rezultat}
+
+W tabeli \ref{tab:statystyki} przedstawiono warto\'sci parametr\'ow
+statystycznych przyk\l{}adowych sygna\l{}\'ow przy $A=1$, $T=1$~s,
+$t_1=0$~s, $d=5$~s, $f_s=1000$~Hz.
+
+\begin{table}[h!]
+  \caption{Parametry statystyczne wybranych sygna\l{}\'ow ($A=1$)}
+  \centering
+  \vspace{0.2cm}
+  \begin{tabular}{l c c c c c}
+    \hline\hline\\[-0.4cm]
+    \textbf{Sygna\l{}} & $\bar{y}$ & $\overline{|y|}$ &
+    $y_{\mathrm{RMS}}$ & $\sigma^2$ & $P$ \\[0.1cm]
+    \hline
+    Sinusoidalny (S3)          & $0$    & $2/\pi$       & $1/\sqrt{2}$ & $1/2$ & $1/2$ \\
+    Prostok\k{a}tny ($k_w=0.5$)& $1/2$  & $1/2$         & $1/\sqrt{2}$ & $1/4$ & $1/2$ \\
+    Skok jednostkowy           & $\approx\!1$ & $\approx\!1$ & $\approx\!1$ & $\approx\!0$ & $\approx\!1$ \\
+    Szum jednostajny (S1)      & $\approx\!0$ & $\approx\!0.5$ & $\approx\!0.577$ & $\approx\!0.333$ & $\approx\!0.333$ \\[0.1cm]
+    \hline
+  \end{tabular}
+  \label{tab:statystyki}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{Eksperyment nr 3 -- Operacje na sygna\l{}ach}
+
+\subsubsection{Za\l{}o\.zenia}
+
+Aplikacja umo\.zliwia sk\l{}adanie dw\'och lub wi\k{e}cej sygna\l{}\'ow
+za pomoc\k{a} czterech operacji arytmetycznych: dodawania, odejmowania,
+mno\.zenia i dzielenia. Ka\.zda operacja wykonywana jest pr\'obka po pr\'obce
+na wektorach o r\'ownej d\l{}ugo\'sci.
+
+\subsubsection{Przebieg}
+
+Operacje realizowane s\k{a} nast\k{e}puj\k{a}cymi funkcjami:
+
+\begin{lstlisting}
+def signal_add(y1, y2):
+    min_len = min(len(y1), len(y2))
+    return y1[:min_len] + y2[:min_len]
+
+def signal_multiply(y1, y2):
+    min_len = min(len(y1), len(y2))
+    return y1[:min_len] * y2[:min_len]
+
+def signal_divide(y1, y2):
+    min_len = min(len(y1), len(y2))
+    # replace zeros with small value to avoid division by zero
+    y2_safe = np.where(y2[:min_len] == 0, 1e-10, y2[:min_len])
+    return y1[:min_len] / y2_safe
+\end{lstlisting}
+
+Dzielenie zabezpieczone jest przed dzieleniem przez zero poprzez
+zast\k{a}pienie zerowych warto\'sci ma\l{}\k{a} warto\'sci\k{a} $10^{-10}$.
+
+\subsubsection{Rezultat}
+
+Mno\.zenie sygna\l{}u sinusoidalnego przez sygna\l{} prostok\k{a}tny
+pozwala uzyska\'c modulacj\k{e} amplitudy (AM). Dodawanie dw\'och
+sygna\l{}\'ow sinusoidalnych o bliskich cz\k{e}stotliwo\'sciach
+prowadzi do efektu bicia.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Eksperyment nr 4 -- Zapis i odczyt sygna\l{}u}
+
+\subsubsection{Za\l{}o\.zenia}
+
+Aplikacja umo\.zliwia zapis wygenerowanego lub przetworzonego sygna\l{}u
+do pliku binarnego (format msgpack) oraz jego p\'o\'zniejsze wczytanie.
+Plik zawiera wektor czasu, wektor warto\'sci oraz metadane.
+
+\subsubsection{Przebieg}
+
+Serializacja sygna\l{}u odbywa si\k{e} przy u\.zyciu biblioteki
+\texttt{msgpack}. Struktura zapisanego pliku:
+
+\begin{lstlisting}
+data = {
+    "t":        t.tolist(),
+    "y":        y.tolist(),
+    "metadata": metadata,
+    "version":  "1.0",
+    "format":   "msgpack",
+}
+\end{lstlisting}
+
+\subsubsection{Rezultat}
+
+Zapis i odczyt dzia\l{}a poprawnie dla wszystkich 11 typ\'ow
+sygna\l{}\'ow. Weryfikowana jest sp\'ojno\'s\'c d\l{}ugo\'sci wektor\'ow
+$t$ i $y$ oraz niepusto\'s\'c danych.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Wnioski}
+
+Zrealizowana aplikacja pozwala na generowan\k{e} i analiz\k{e} jedenastu
+r\'o\.znych typ\'ow sygna\l{}\'ow dyskretnych. Wyniki eksperyment\'ow
+potwierdzaj\k{a} poprawno\'s\'c implementacji wzor\'ow matematycznych:
+warto\'sci RMS i mocy \'sredniej sygna\l{}u sinusoidalnego s\k{a} zgodne
+z warto\'sciami teoretycznymi ($y_{\mathrm{RMS}} = A/\sqrt{2}$,
+$P = A^2/2$). Zastosowanie pe\l{}nych okres\'ow do oblicze\'n parametr\'ow
+sygna\l{}\'ow okresowych eliminuje b\l{}\k{e}dy zwi\k{a}zane z ko\'ncowym
+efektem okna. Mechanizm zabezpieczenia przed dzieleniem przez zero zapewnia
+stabilno\'s\'c numeryczn\k{a} operacji arytmetycznych.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Za\l{}\k{a}czniki}
+
+Kod \'zr\'od\l{}owy aplikacji dost\k{e}pny jest w repozytorium projektu.
+G\l{}\'owne pliki:
+
+\begin{itemize}
+  \item \texttt{src/functions.py} -- generatory sygna\l{}\'ow
+  \item \texttt{src/pages/zadanie1.py} -- interfejs u\.zytkownika, operacje i statystyki
+  \item \texttt{src/signal\_io.py} -- zapis i odczyt sygna\l{}u
+  \item \texttt{src/streamlit\_app.py} -- g\l{}\'owny plik aplikacji
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand\refname{Bibliografia}
+\bibliographystyle{plain}
+\bibliography{bibliografia}
+
+\end{document}
