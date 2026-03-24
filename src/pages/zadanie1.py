@@ -322,7 +322,7 @@ if "last_loaded_file_id" not in st.session_state:
 
 st.sidebar.header("Ustawienia globalne")
 st.session_state.global_fs = st.sidebar.number_input(
-    "Częstotliwość próbkowania (Hz)",
+    "Częstotliwość próbkowania (fs)",
     min_value=1.0,
     value=st.session_state.global_fs,
     step=10.0,
