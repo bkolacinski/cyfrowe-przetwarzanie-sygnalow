@@ -143,6 +143,54 @@ W trakcie implementacji skupiono się na modularności kodu oraz czytelnym podzi
 Funkcje wykorzystane w niniejszym sprawozdaniu zostały zaczerpnięte z instrukcji \cite{cps-zadanie1-instrukcja}. Niektóre wzory zostały uproszczone w celu czytelniejszej prezentacji, na przykład poprzez podstawienie wartości średniej i odchylenia standardowego w wzorze na szum gaussowski oraz jego skrócenie.
 
 \newpage
+\section{Eksperymenty}
+
+\subsection{Eksperyment 1}
+Analizowano sygnał będący sumą sygnału sinusoidalnego o amplitudzie 1.0 i okresie 1.2 oraz sygnału prostokątnego o amplitudzie 1.0 i okresie 1.0. Celem było zaobserwowanie wpływu dodania sygnału prostokątnego na przebieg wynikowy.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/eksperyment_1_1.png}
+    \caption{Przebieg sygnału wynikowego}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/eksperyment_1_1_histogram.png}
+    \caption{Histogram wartości sygnału}
+\end{figure}
+
+\subsection{Eksperyment 2}
+Analizowano sygnał sinusoidalny o amplitudzie 1.0 i okresie 1.8, od którego odjęto szum gaussowski o amplitudzie 1.5. Celem było zbadanie wpływu szumu na kształt sygnału oraz jego rozkład wartości.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/eksperyment_1_2.png}
+    \caption{Przebieg sygnału z szumem}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/eksperyment_1_2_histogram.png}
+    \caption{Histogram wartości sygnału}
+\end{figure}
+
+\subsection{Eksperyment 3}
+Analizowano sygnał powstały jako iloczyn sygnału sinusoidalnego o amplitudzie 1.0 i okresie 2.0 oraz sygnału trójkątnego o amplitudzie 0.8 i okresie 1.5, z dodanym szumem gaussowskim o amplitudzie 0.5. Celem było zbadanie wpływu modulacji oraz szumu na przebieg i rozkład wartości sygnału.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/eksperyment_1_3.png}
+    \caption{Przebieg sygnału wynikowego}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/eksperyment_1_3_histogram.png}
+    \caption{Histogram wartości sygnału}
+\end{figure}
+
+\newpage
 \section{Wnioski}
 
 Zrealizowana aplikacja umożliwia intuicyjną generację oraz analizę sygnałów i szumów o zadanych parametrach. Zastosowanie interfejsu Streamlit znacząco upraszcza interakcję z użytkownikiem i pozwala na szybkie testowanie różnych konfiguracji.
