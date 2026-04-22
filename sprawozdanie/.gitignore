@@ -1,0 +1,10 @@
+!*.bib
+!main.tex
+!img/
+!img/**
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz

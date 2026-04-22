@@ -4,6 +4,7 @@ import streamlit as st
 
 import functions as fn
 import signal_io
+import signal_utils as su
 
 SIGNAL_REGISTRY = {
     "S1": {
@@ -85,101 +86,12 @@ SIGNAL_REGISTRY = {
     },
 }
 
-
-def signal_add(y1, y2):
-    min_len = min(len(y1), len(y2))
-    return y1[:min_len] + y2[:min_len]
-
-
-def signal_subtract(y1, y2):
-    min_len = min(len(y1), len(y2))
-    return y1[:min_len] - y2[:min_len]
-
-
-def signal_multiply(y1, y2):
-    min_len = min(len(y1), len(y2))
-    return y1[:min_len] * y2[:min_len]
-
-
-def signal_divide(y1, y2):
-    min_len = min(len(y1), len(y2))
-    y2_safe = np.where(y2[:min_len] == 0, 1e-10, y2[:min_len])
-    return y1[:min_len] / y2_safe
-
-
 def save_signal(t, y, metadata):
     return signal_io.save_signal(t, y, metadata)
 
 
 def load_signal(file_buffer):
     return signal_io.load_signal(file_buffer)
-
-
-def get_analysis_data(x_vals, y_vals, signals):
-    info = {
-        "used_full_periods": False,
-        "full_periods": None,
-        "period": 0,
-        "reason": "",
-    }
-
-    if x_vals is None or y_vals is None or len(y_vals) == 0:
-        info["reason"] = "Brak danych wejściowych."
-        return x_vals, y_vals, info
-
-    active_signals = [signal for signal in signals if "data" in signal]
-    if len(active_signals) != 1:
-        info["reason"] = (
-            "Dla sygnału złożonego statystyki i histogram liczone są z całego zakresu."
-        )
-        return x_vals, y_vals, info
-
-    signal_data = active_signals[0]
-    signal_config = SIGNAL_REGISTRY.get(signal_data.get("type"), {})
-
-    if not (
-        signal_config.get("is_periodic", False)
-        and signal_config.get("is_continuous", False)
-    ):
-        info["reason"] = "Sygnał nie jest jednocześnie okresowy i ciągły."
-        return x_vals, y_vals, info
-
-    period = signal_data.get("params", {}).get("T")
-    if period is None or period <= 0:
-        info["reason"] = "Brak poprawnego okresu T."
-        return x_vals, y_vals, info
-
-    duration = float(x_vals[-1] - x_vals[0])
-    full_periods = int(np.floor(duration / period + 1e-12))
-
-    if full_periods <= 0:
-        info["period"] = period
-        info["full_periods"] = 0
-        info["reason"] = "W wybranym zakresie czasu nie ma pełnego okresu."
-        return x_vals[:0], y_vals[:0], info
-
-    end_time = float(x_vals[0] + full_periods * period)
-    mask = x_vals <= (end_time + 1e-12)
-    t_for_analysis = x_vals[mask]
-    y_for_analysis = y_vals[mask]
-
-    info["used_full_periods"] = True
-    info["full_periods"] = full_periods
-    info["period"] = period
-    return t_for_analysis, y_for_analysis, info
-
-
-def calculate_signal_metrics(signal):
-    y = np.asarray(signal)
-    power = np.mean(np.square(y))
-    return {
-        "mean": np.mean(y),
-        "mean_abs": np.mean(np.abs(y)),
-        "rms": np.sqrt(power),
-        "variance": np.var(y),
-        "power": power,
-    }
-
 
 def render_signal_params(signal_idx, signal_data):
     signal_keys = list(SIGNAL_REGISTRY.keys())
@@ -426,17 +338,17 @@ for i, signal_data in enumerate(st.session_state.signals):
         st.session_state.signals[i]["params"] = params.copy()
         st.session_state.signals[i]["data"] = (t, y)
 
-if global_params_changed:
-    st.session_state.prev_global_fs = st.session_state.global_fs
-    st.session_state.prev_global_t1 = st.session_state.global_t1
-    st.session_state.prev_global_d = st.session_state.global_d
-
     if i > 0:
         if st.sidebar.button(f"Usuń sygnał {i + 1}", key=f"remove_{i}"):
             st.session_state.signals.pop(i)
             st.rerun()
 
     st.sidebar.divider()
+
+if global_params_changed:
+    st.session_state.prev_global_fs = st.session_state.global_fs
+    st.session_state.prev_global_t1 = st.session_state.global_t1
+    st.session_state.prev_global_d = st.session_state.global_d
 
 
 result_t = None
@@ -463,23 +375,26 @@ for i, signal_data in enumerate(st.session_state.signals):
     else:
         operation = signal_data.get("operation", "add")
         if operation == "add":
-            result_y = signal_add(result_y, y)
+            result_y = su.signal_add(result_y, y)
             signal_labels.append(f"+ {signal_name}")
         elif operation == "subtract":
-            result_y = signal_subtract(result_y, y)
+            result_y = su.signal_subtract(result_y, y)
             signal_labels.append(f"- {signal_name}")
         elif operation == "multiply":
-            result_y = signal_multiply(result_y, y)
+            result_y = su.signal_multiply(result_y, y)
             signal_labels.append(f"× {signal_name}")
         elif operation == "divide":
-            result_y = signal_divide(result_y, y)
+            result_y = su.signal_divide(result_y, y)
             signal_labels.append(f"÷ {signal_name}")
 
         if result_t is not None and result_y is not None:
             result_t = result_t[: len(result_y)]
 
-analysis_t, analysis_y, analysis_info = get_analysis_data(
-    result_t, result_y, st.session_state.signals
+analysis_t, analysis_y, analysis_info = su.get_periodic_analysis_data(
+    result_t,
+    result_y,
+    st.session_state.signals,
+    SIGNAL_REGISTRY,
 )
 
 active_signals = [
@@ -656,7 +571,7 @@ with c1:
 with c2:
     st.markdown("### Parametry wyliczone")
     if analysis_y is not None and len(analysis_y) > 0:
-        metrics = calculate_signal_metrics(analysis_y)
+        metrics = su.calculate_signal_metrics(analysis_y)
         st.text(f"Liczba próbek do obliczeń: {len(analysis_y)}")
         st.text(f"Wartość średnia: {metrics['mean']:.6f}")
         st.text(f"Wartość średnia bezwzględna: {metrics['mean_abs']:.6f}")

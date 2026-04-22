@@ -1,0 +1,203 @@
+\documentclass[12pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+\newcommand{\BibTeX}{{\sc Bib}\TeX} 
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage[hidelinks]{hyperref}
+\usepackage{float}
+
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	stringstyle=\color{green!50!black},
+	backgroundcolor=\color{black!5},
+	showstringspaces=false,
+	breaklines=true,
+	frame=single,
+	columns=flexible,
+	keepspaces=true
+}
+
+\setlength{\textheight}{21cm}
+
+\title{{\bf Zadanie nr 2 - Próbkowanie i kwantyzacja}\linebreak
+	Cyfrowe Przetwarzanie Sygnałów}
+\author{Bartosz Kołaciński, 251554 \and Jakub Rosiak, 251620}
+\date{\today}
+
+\begin{document}
+	\clearpage\maketitle
+	\thispagestyle{empty}
+	\newpage
+	\setcounter{page}{1}
+	
+	\section{Cel zadania}
+	Celem zadania jest przeprowadzenie eksperymentów związanych z konwersją analogowo-cyfrową (A/C) i cyfrowo-analogową (C/A). 
+
+	\section{Wstęp teoretyczny}
+
+	Wymagana wiedza teoretyczna potrzebna do wykonania zadania została zaczerpnięta z dostępnej na WIKAMP instrukcji \cite{cps-zadanie2-instrukcja}.
+	
+	Proces konwersji sygnału analogowego do postaci cyfrowej obejmuje trzy główne etapy: próbkowanie, kwantyzacje i rekonstrukcje sygnału.
+	
+	W realizacji tego zadania wykorzystaliśmy próbkowanie równomierne, które polega na pobieranie próbek w równych odstępach czasu $T_s$ określonego za pomocą wzoru:
+	\begin{equation}
+		T_s = \frac{1}{f_s}
+	\end{equation}
+	
+	Kwantyzacja odpowiada za odwzorowanie wartości sygnału na skończony zbiór poziomów. Rozważono dwa warianty kwantyzacji równomiernej: z obcięciem oraz z zaokrąglaniem.
+	
+	Rekonstrukcja sygnału cyfrowego do postaci analogowej realizowana jest trzema metodami: ekstrapolacją zerowego rzędu (ZOH), interpolacją pierwszego rzędu (FOH) oraz rekonstrukcją z wykorzystaniem funkcji sinc (SINC).
+	
+	W celu oceny jakości przetwarzania sygnału wykorzystano następujące miary: błąd średniokwadratowy (MSE), stosunek sygnału do szumu (SNR), szczytowy stosunek sygnału do szumu (PSNR) oraz maksymalną różnicę (MD).
+
+\section{Eksperymenty i wyniki}
+
+Opis wykonywanych eksperymentów. Wymagane jest ilustrowanie przeprowadzanych doświadczeń wykresami oraz tabelami.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PODROZDZIAŁ PT. EKSPERYMENT NR 1 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Eksperyment nr 1}
+
+Eksperyment nr 1...\\
+Identycznościowa funkcja aktywacji ma postać:
+\begin{equation}
+ \forall\: s \in \mathbb{R}\:\:\:\: f(s) = s
+ \label{równanie funkcji identycznościowej}
+\end{equation}
+Jak widać z definicji (\ref{równanie funkcji identycznościowej}) funkcja ta...
+
+\subsubsection{Założenia}
+
+\subsubsection{Przebieg}
+\newpage
+
+\subsubsection{Rezultat}
+
+Rezultaty badań eksperymentalnych przedstawione są w Tab. \ref{wyniki eksperymentu pierwszego}.
+\begin{table}[h!]
+ \caption{Rezultaty eksperymentu nr 1}
+ \centering
+ \vspace{0.2cm}
+ \begin{tabular}{c c c c}
+  \hline\hline\\[-0.4cm]
+  \textbf{Przypadek} & \textbf{Metoda 1} & \textbf{Metoda 2} & \textbf{Metoda 3}\\[0.1cm]
+  \hline
+  \textbf{1} & 50 & 837 & 970  \\
+  \textbf{2} & 47 & 877 & 230  \\
+  \textbf{3} & 31 &  25 & 415  \\
+  \textbf{4} & 35 & 144 & 2356 \\
+  \textbf{5} & 45 & 300 & 556  \\ [0.1cm]
+  \hline
+ \end{tabular}
+ \label{wyniki eksperymentu pierwszego}
+\end{table}
+
+\noindent Jak widać w Tab. \ref{wyniki eksperymentu pierwszego}...\newline
+Graficzna interpretacja wyników z Tab. \ref{wyniki eksperymentu pierwszego} 
+przedstawiona jest na wykresie Rys. \ref{rysunek do eksperymentu pierwszego} gdzie można zauważyć, że...
+
+\noindent Jak widać z wykresu Rys. \ref{rysunek do eksperymentu pierwszego}...\newline
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PODROZDZIAŁ PT. EKSPERYMENT NR 2 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\subsection{Eksperyment nr 2}
+
+Eksperyment nr 2 polegał na...\\
+Sigmoidalna funkcja aktywacji ma postać:
+\begin{equation}
+ \forall\: s \in \mathbb{R}\:\:\:\:\:\: f(s) = \frac{1}{\:\:\:1 + e^{-\beta \cdot s}\:}\:,
+ \:\:\:\:\textnormal{gdzie}\:\:\beta \in \mathbb{R}_{+}
+ \label{równanie funkcji sigmoidalnej}
+\end{equation}
+Jak widać z równania definicyjnego (\ref{równanie funkcji sigmoidalnej}) 
+funkcja\footnote{ang. \textit{sigmoidal function} lub \textit{unipolar function}}
+ta ma wykres przedstawiony 
+na rysunku Rys. \ref{funkcja sigmoidalna}, gdzie paramater $\beta$ ...
+
+\subsubsection{Założenia}
+
+\subsubsection{Przebieg}
+
+\subsubsection{Rezultat}
+
+Rezultaty badań eksperymentalnych przedstawione są w Tab. \ref{wyniki eksperymentu drugiego}.
+\vspace{-0.5cm}
+\begin{table}[h!]
+ \caption{Rezultaty eksperymentu nr 2}
+ \centering
+ \vspace{0.2cm}
+ \begin{tabular}{c c c }
+  \hline\hline\\[-0.4cm]
+  \textbf{Przypadek} & \textbf{Metoda 1} & \textbf{Metoda 2}\\[0.1cm]
+  \hline
+  \textbf{1} & 50 & 837 \\
+  \textbf{2} & 47 & 877 \\
+  \textbf{3} & 45 & 300 \\ [0.1cm]
+  \hline
+ \end{tabular}
+ \label{wyniki eksperymentu drugiego}
+\end{table}
+
+\noindent Jak widać w Tab. \ref{wyniki eksperymentu drugiego}...\newline
+Wyniki w Tab. \ref{wyniki eksperymentu drugiego} świadczą o tym, że...
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PODROZDZIAŁ PT. EKSPERYMENT NR N 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Eksperyment nr n}
+Eksperyment nr n zakładał, iż...\\
+Dla dowolnej liczby $N \in \mathbb{N}$ funkcję 
+$F_{N}:\mathbb{C}^{\:N}\!\rightarrow\mathbb{C}^{\:N}$
+zdefiniowaną w następujący sposób:
+\vspace{-0.4cm}
+\begin{equation}
+ \forall\:\mathbf{x} \in \mathbb{C}^{\:N}\:\:\:\:\:
+ \forall\:k \in \{\:0,\dots,N - 1\:\!\}\:\:\:\:\:
+ F_{N}\:\!(\:\mathbf{x}\:)_{k}\:\stackrel{\Delta}{=}\:
+ \frac{1}{\sqrt{N}}\:
+ \sum_{n = 0}^{N - 1}\:x_{n}\:\cdot\:
+ e^{-j 2 \pi n k / N}
+ \label{równanie dyskretnej transformaty Fouriera}
+\end{equation}
+nazywamy $N$ -- punktowym prostym jednowymiarowym dyskretnym przekształceniem Fouriera.
+Na Rys. \ref{FFT} przedstawiono szybki algorytm obliczania dyskretnego 
+przekształcenia Fouriera\footnote{ang. \textit{Fast Fourier Transform}}.
+
+\subsubsection{Założenia}
+
+\subsubsection{Przebieg}
+
+\subsubsection{Rezultat}
+\newpage
+
+	\section{Wnioski}
+	
+	Spośród zaimplementowanych metod rekonstrukcji najlepsze wyniki uzyskano dla interpolacji sinc. Metoda ta osiąga najniższe wartości błędu średniokwadratowego (MSE) oraz najwyższe wartości współczynników SNR i PSNR.
+	
+	Metoda interpolacji liniowej (FOH) daje wyniki pośrednie – znacząco lepsze niż zero-order hold (ZOH), jednak gorsze niż rekonstrukcja sinc. W szczególności FOH redukuje efekt „schodków” charakterystyczny dla ZOH, ale nadal wprowadza zauważalne zniekształcenia.
+	
+	Metoda ZOH cechuje się największym błędem rekonstrukcji, co wynika z utrzymywania stałej wartości sygnału pomiędzy próbkami.
+	
+	W przypadku maksymalnej różnicy (MD) interpolacja sinc nie zawsze daje najlepsze wyniki względem FOH, co może wynikać z ograniczenia liczby próbek w implementacji.
+	
+	Zjawisko aliasingu potwierdza, że niespełnienie warunku Nyquista opisanego wzorem $f_s < 2\cdot f_{max}$ prowadzi do nieodwracalnej utraty informacji o sygnale.
+	
+	Przeprowadzone eksperymenty pokazują, że aliasing nie zależy od amplitudy sygnału, lecz wyłącznie od relacji między częstotliwością sygnału a częstotliwością próbkowania. Zmiana amplitudy wpływa jedynie na widoczność zjawiska na wykresach, ale nie eliminuje jego przyczyny.
+
+	\renewcommand\refname{Bibliografia}
+	\bibliographystyle{plain}
+	\bibliography{bibliografia}
+
+\end{document}
