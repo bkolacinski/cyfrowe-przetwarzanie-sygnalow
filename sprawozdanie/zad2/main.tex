@@ -58,129 +58,146 @@
 
 \section{Eksperymenty i wyniki}
 
-Opis wykonywanych eksperymentów. Wymagane jest ilustrowanie przeprowadzanych doświadczeń wykresami oraz tabelami.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% PODROZDZIAŁ PT. EKSPERYMENT NR 1 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Celem eksperymentu było zbadanie procesu próbkowania, kwantyzacji oraz rekonstrukcji sygnału analogowego z wykorzystaniem różnych metod odtwarzania. Analizowany sygnał miał amplitudę $A = 2.5$, częstotliwość $f_0 = 5\ \mathrm{Hz}$ oraz fazę początkową równą $0\ \mathrm{rad}$. Sygnał obserwowano w przedziale czasu od $t_1 = 0\ \mathrm{s}$ przez okres $d = 1\ \mathrm{s}$.
 
-\subsection{Eksperyment nr 1}
+Sygnał referencyjny został wygenerowany z wysoką częstotliwością próbkowania $f_{s_ref} = 20\ \mathrm{kHz}$ w celu uzyskania dokładnego odwzorowania przebiegu analogowego. Następnie przeprowadzono proces konwersji analogowo-cyfrowej (A/C), wykorzystując częstotliwość próbkowania $f_s = 50\ \mathrm{Hz}$ oraz rozdzielczość kwantyzacji równą 8 bitów. Zastosowano kwantyzację z zaokrągleniem.
 
-Eksperyment nr 1...\\
-Identycznościowa funkcja aktywacji ma postać:
-\begin{equation}
- \forall\: s \in \mathbb{R}\:\:\:\: f(s) = s
- \label{równanie funkcji identycznościowej}
-\end{equation}
-Jak widać z definicji (\ref{równanie funkcji identycznościowej}) funkcja ta...
+Po procesie cyfryzacji wykonano rekonstrukcję sygnału za pomocą przetwornika cyfrowo-analogowego (C/A), testując trzy metody rekonstrukcji: metodę zerowego rzędu (ZOH -- Zero-Order Hold), metodę pierwszego rzędu (FOH -- First-Order Hold) oraz rekonstrukcję idealną z wykorzystaniem interpolacji sinc (SINC).
 
-\subsubsection{Założenia}
+Uzyskane sygnały zrekonstruowane porównano z sygnałem referencyjnym w celu oceny wpływu próbkowania, kwantyzacji oraz zastosowanej metody rekonstrukcji na jakość odwzorowania.
 
-\subsubsection{Przebieg}
-\newpage
+\subsection{ZOH}
 
-\subsubsection{Rezultat}
-
-Rezultaty badań eksperymentalnych przedstawione są w Tab. \ref{wyniki eksperymentu pierwszego}.
 \begin{table}[h!]
- \caption{Rezultaty eksperymentu nr 1}
- \centering
- \vspace{0.2cm}
- \begin{tabular}{c c c c}
-  \hline\hline\\[-0.4cm]
-  \textbf{Przypadek} & \textbf{Metoda 1} & \textbf{Metoda 2} & \textbf{Metoda 3}\\[0.1cm]
-  \hline
-  \textbf{1} & 50 & 837 & 970  \\
-  \textbf{2} & 47 & 877 & 230  \\
-  \textbf{3} & 31 &  25 & 415  \\
-  \textbf{4} & 35 & 144 & 2356 \\
-  \textbf{5} & 45 & 300 & 556  \\ [0.1cm]
-  \hline
- \end{tabular}
- \label{wyniki eksperymentu pierwszego}
+\caption{Miary jakości próbkowania}
+\centering
+\vspace{0.2cm}
+\begin{tabular}{c c}
+\hline\hline\\[-0.4cm]
+\textbf{Miara} & \textbf{Próbkowanie}\\[0.1cm]
+\hline\\[-0.3cm]
+\textbf{MSE} & $4.017011 \cdot 10^{-1}$ \\
+\textbf{SNR [dB]} & 8.909 \\
+\textbf{PSNR [dB]} & 11.920 \\
+\textbf{MD} & 1.466284 \\ [0.1cm]
+\hline
+\end{tabular}
+\label{wyniki}
 \end{table}
 
-\noindent Jak widać w Tab. \ref{wyniki eksperymentu pierwszego}...\newline
-Graficzna interpretacja wyników z Tab. \ref{wyniki eksperymentu pierwszego} 
-przedstawiona jest na wykresie Rys. \ref{rysunek do eksperymentu pierwszego} gdzie można zauważyć, że...
 
-\noindent Jak widać z wykresu Rys. \ref{rysunek do eksperymentu pierwszego}...\newline
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/eksperyment_1_1.png}
+    \caption{Wykres sygnału oryginalnego i rekonstrukcji}
+\end{figure}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% PODROZDZIAŁ PT. EKSPERYMENT NR 2 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/eksperyment_1_2.png}
+    \caption{Wykres efektu kwantyzacji}
+\end{figure}
 
-\newpage
-\subsection{Eksperyment nr 2}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/eksperyment_1_3.png}
+    \caption{Wykres jakości w porównaniu do relacji fs/f0}
+\end{figure}
 
-Eksperyment nr 2 polegał na...\\
-Sigmoidalna funkcja aktywacji ma postać:
-\begin{equation}
- \forall\: s \in \mathbb{R}\:\:\:\:\:\: f(s) = \frac{1}{\:\:\:1 + e^{-\beta \cdot s}\:}\:,
- \:\:\:\:\textnormal{gdzie}\:\:\beta \in \mathbb{R}_{+}
- \label{równanie funkcji sigmoidalnej}
-\end{equation}
-Jak widać z równania definicyjnego (\ref{równanie funkcji sigmoidalnej}) 
-funkcja\footnote{ang. \textit{sigmoidal function} lub \textit{unipolar function}}
-ta ma wykres przedstawiony 
-na rysunku Rys. \ref{funkcja sigmoidalna}, gdzie paramater $\beta$ ...
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/eksperyment_1_4.png}
+    \caption{Wykres kwantyzacji, teori SNR i ENOB}
+\end{figure}
 
-\subsubsection{Założenia}
 
-\subsubsection{Przebieg}
+\subsection{FOH}
 
-\subsubsection{Rezultat}
-
-Rezultaty badań eksperymentalnych przedstawione są w Tab. \ref{wyniki eksperymentu drugiego}.
-\vspace{-0.5cm}
 \begin{table}[h!]
- \caption{Rezultaty eksperymentu nr 2}
- \centering
- \vspace{0.2cm}
- \begin{tabular}{c c c }
-  \hline\hline\\[-0.4cm]
-  \textbf{Przypadek} & \textbf{Metoda 1} & \textbf{Metoda 2}\\[0.1cm]
-  \hline
-  \textbf{1} & 50 & 837 \\
-  \textbf{2} & 47 & 877 \\
-  \textbf{3} & 45 & 300 \\ [0.1cm]
-  \hline
- \end{tabular}
- \label{wyniki eksperymentu drugiego}
+\caption{Miary jakości próbkowania}
+\centering
+\vspace{0.2cm}
+\begin{tabular}{c c}
+\hline\hline\\[-0.4cm]
+\textbf{Miara} & \textbf{Próbkowanie}\\[0.1cm]
+\hline\\[-0.3cm]
+\textbf{MSE} & $3.987565 \cdot 10^{-3}$ \\
+\textbf{SNR [dB]} & 28.941 \\
+\textbf{PSNR [dB]} & 31.952 \\
+\textbf{MD} & 0.122359 \\ [0.1cm]
+\hline
+\end{tabular}
+\label{wyniki}
 \end{table}
 
-\noindent Jak widać w Tab. \ref{wyniki eksperymentu drugiego}...\newline
-Wyniki w Tab. \ref{wyniki eksperymentu drugiego} świadczą o tym, że...
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/eksperyment_2_1.png}
+    \caption{Wykres sygnału oryginalnego i rekonstrukcji}
+\end{figure}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% PODROZDZIAŁ PT. EKSPERYMENT NR N 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/eksperyment_2_2.png}
+    \caption{Wykres efektu kwantyzacji}
+\end{figure}
 
-\subsection{Eksperyment nr n}
-Eksperyment nr n zakładał, iż...\\
-Dla dowolnej liczby $N \in \mathbb{N}$ funkcję 
-$F_{N}:\mathbb{C}^{\:N}\!\rightarrow\mathbb{C}^{\:N}$
-zdefiniowaną w następujący sposób:
-\vspace{-0.4cm}
-\begin{equation}
- \forall\:\mathbf{x} \in \mathbb{C}^{\:N}\:\:\:\:\:
- \forall\:k \in \{\:0,\dots,N - 1\:\!\}\:\:\:\:\:
- F_{N}\:\!(\:\mathbf{x}\:)_{k}\:\stackrel{\Delta}{=}\:
- \frac{1}{\sqrt{N}}\:
- \sum_{n = 0}^{N - 1}\:x_{n}\:\cdot\:
- e^{-j 2 \pi n k / N}
- \label{równanie dyskretnej transformaty Fouriera}
-\end{equation}
-nazywamy $N$ -- punktowym prostym jednowymiarowym dyskretnym przekształceniem Fouriera.
-Na Rys. \ref{FFT} przedstawiono szybki algorytm obliczania dyskretnego 
-przekształcenia Fouriera\footnote{ang. \textit{Fast Fourier Transform}}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/eksperyment_2_3.png}
+    \caption{Wykres jakości w porównaniu do relacji fs/f0}
+\end{figure}
 
-\subsubsection{Założenia}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/eksperyment_2_4.png}
+    \caption{Wykres kwantyzacji, teori SNR i ENOB}
+\end{figure}
 
-\subsubsection{Przebieg}
+\subsection{SINC}
 
-\subsubsection{Rezultat}
-\newpage
+\begin{table}[h!]
+\caption{Miary jakości próbkowania}
+\centering
+\vspace{0.2cm}
+\begin{tabular}{c c}
+\hline\hline\\[-0.4cm]
+\textbf{Miara} & \textbf{Próbkowanie}\\[0.1cm]
+\hline\\[-0.3cm]
+\textbf{MSE} & $9.460693 \cdot 10^{-4}$ \\
+\textbf{SNR [dB]} & 35.189 \\
+\textbf{PSNR [dB]} & 38.200 \\
+\textbf{MD} & 0.174376 \\ [0.1cm]
+\hline
+\end{tabular}
+\label{wyniki}
+\end{table}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/eksperyment_3_1.png}
+    \caption{Wykres sygnału oryginalnego i rekonstrukcji}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/eksperyment_3_2.png}
+    \caption{Wykres efektu kwantyzacji}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/eksperyment_3_3.png}
+    \caption{Wykres jakości w porównaniu do relacji fs/f0}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{img/eksperyment_3_4.png}
+    \caption{Wykres kwantyzacji, teori SNR i ENOB}
+\end{figure}
 
 	\section{Wnioski}
 	
