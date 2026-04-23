@@ -196,8 +196,46 @@ Uzyskane sygnały zrekonstruowane porównano z sygnałem referencyjnym w celu oc
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/eksperyment_3_4.png}
-    \caption{Wykres kwantyzacji, teori SNR i ENOB}
+    \caption{Wykres kwantyzacji, teorii SNR i ENOB}
 \end{figure}
+
+\subsection{Aliasing}
+
+Celem eksperymentu było zademonstrowanie zjawiska aliasingu, polegającego na nieodróżnialności sygnałów o różnych częstotliwościach po procesie próbkowania. W szczególności analizowano sygnały sinusoidalne o częstotliwościach postaci
+\[
+f_d = f_0 + k f_s,
+\]
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{img/eksperyment_4_1}
+	\caption{Przedstawienie zjawiska aliasingu dla pięciu różnych wartości k}
+	\label{fig:eksperyment41}
+\end{figure}
+
+W eksperymencie przyjęto częstotliwość sygnału $f_0 = 440\ \mathrm{Hz}$ oraz częstotliwość próbkowania $f_s = 22050\ \mathrm{Hz}$. Rozważono kilka wartości parametru $k \in \mathbb{Z}$, zarówno dodatnich jak i ujemnych, oraz różne amplitudy sygnału $f_d$.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{img/eksperyment_4_2}
+	\caption{Wpływ amplitudy fd przy stałym f0 dla k=0}
+	\label{fig:eksperyment42}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{img/eksperyment_4_3}
+	\caption{Wpływ amplitudy fd przy stałym f0 dla k=-4}
+	\label{fig:eksperyment43}
+\end{figure}
+
+Dla $k=0$ otrzymano klasyczny przebieg sinusoidalny. Natomiast dla większych wartości $|k|$ zaobserwowano bardziej złożone wzorce, wynikające z aliasingu. 
+
+Pomimo różnic wizualnych, uzyskane przebiegi odpowiadają aliasom sygnałów o częstotliwościach $f_d = f_0 + k f_s$.
+
+Dodatkowo łatwo zauważyć, że zmiana amplitudy sygnału nie wpływa na zjawisko aliasingu, a jedynie na skalowanie wartości na osi $y$.
+
+
 
 	\section{Wnioski}
 	
