@@ -492,3 +492,114 @@ ax_amp.grid(True, alpha=0.3)
 ax_amp.legend(loc="upper right")
 fig_amp.tight_layout()
 st.pyplot(fig_amp, width="stretch")
+
+st.divider()
+st.subheader("Aliasing dla wybranego sygnału (rekonstrukcja SINC)")
+
+if "T" not in required_params:
+    st.info(
+        "Dla wybranego sygnału brak parametru okresu T, więc nie można ustawić częstotliwości oryginalnej. "
+        "Wybierz sygnał okresowy (S3–S8), aby uruchomić demonstrację aliasingu."
+    )
+else:
+    alias_amplitude = st.number_input(
+        "Aliasing: amplituda A",
+        value=float(signal_params.get("A", 1.0)),
+        step=0.1,
+        key="alias_amplitude_input",
+    )
+    alias_f0_hz = st.number_input(
+        "Aliasing: częstotliwość oryginalna f0 [Hz]",
+        min_value=0.1,
+        value=float(1.0 / signal_params["T"]),
+        step=1.0,
+        key="alias_f0_hz_input",
+    )
+    alias_fs_hz = st.number_input(
+        "Aliasing: częstotliwość próbkowania fs [Hz]",
+        min_value=1.0,
+        value=20.0,
+        step=1.0,
+        key="alias_fs_hz_input",
+    )
+    alias_t_start = st.number_input(
+        "Aliasing: punkt startowy t1 [s]",
+        value=0.0,
+        step=0.01,
+        key="alias_t_start_input",
+    )
+    alias_duration_s = st.number_input(
+        "Aliasing: długość trwania d [s]",
+        min_value=0.01,
+        value=0.3,
+        step=0.01,
+        key="alias_duration_input",
+    )
+    alias_sinc_neighbors = st.slider(
+        "Aliasing: SINC liczba sąsiadów",
+        min_value=4,
+        max_value=128,
+        value=32,
+        step=4,
+        key="alias_sinc_neighbors_input",
+    )
+
+    alias_fs_ref_hz = max(2000.0, 200.0 * alias_f0_hz)
+
+    alias_params = signal_params.copy()
+    alias_params["A"] = alias_amplitude
+    alias_params["T"] = 1.0 / alias_f0_hz
+    alias_params["t1"] = alias_t_start
+    alias_params["d"] = alias_duration_s
+    alias_params["fs"] = alias_fs_ref_hz
+
+    t_alias_ref, y_alias_ref = signal_config["func"](alias_params)
+
+    t_alias_samples, y_alias_samples = su.uniform_sample(
+        t_reference=t_alias_ref,
+        y_reference=y_alias_ref,
+        fs_hz=alias_fs_hz,
+        t_start=float(t_alias_ref[0]),
+        t_end=float(t_alias_ref[-1]),
+    )
+
+    y_alias_reconstructed_sinc = su.reconstruct_sinc(
+        t_alias_samples,
+        y_alias_samples,
+        t_alias_ref,
+        fs_hz=alias_fs_hz,
+        neighbors=alias_sinc_neighbors,
+    )
+
+    fig_alias_custom, ax_alias_custom = plt.subplots(figsize=(12, 4))
+    ax_alias_custom.plot(
+        t_alias_ref,
+        y_alias_ref,
+        label="Oryginalna funkcja",
+        linewidth=1.6,
+    )
+    ax_alias_custom.scatter(
+        t_alias_samples,
+        y_alias_samples,
+        label="Próbki",
+        color="black",
+        s=22,
+        zorder=3,
+    )
+    ax_alias_custom.plot(
+        t_alias_ref,
+        y_alias_reconstructed_sinc,
+        label="Rekonstrukcja SINC",
+        linewidth=1.2,
+        color="crimson",
+    )
+
+    ax_alias_custom.set_title(
+        f"{signal_config['name']} | f0={alias_f0_hz:.2f} Hz, fs={alias_fs_hz:.2f} Hz"
+    )
+    ax_alias_custom.set_xlabel("Czas [s]")
+    ax_alias_custom.set_ylabel("Amplituda")
+    ax_alias_custom.grid(True, alpha=0.3)
+    ax_alias_custom.legend(loc="upper right")
+    fig_alias_custom.tight_layout()
+    st.pyplot(fig_alias_custom, width="stretch")
