@@ -201,41 +201,25 @@ Uzyskane sygnały zrekonstruowane porównano z sygnałem referencyjnym w celu oc
 
 \subsection{Aliasing}
 
-Celem eksperymentu było zademonstrowanie zjawiska aliasingu, polegającego na nieodróżnialności sygnałów o różnych częstotliwościach po procesie próbkowania. W szczególności analizowano sygnały sinusoidalne o częstotliwościach postaci
-\[
-f_d = f_0 + k f_s,
-\]
+Celem eksperymentu było zademonstrowanie zjawiska aliasingu, polegającego na nieodróżnialności sygnałów o różnych częstotliwościach po procesie próbkowania.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\linewidth]{img/eksperyment_4_1}
-	\caption{Przedstawienie zjawiska aliasingu dla pięciu różnych wartości k}
+	\caption{Przedstawienie zjawiska aliasingu}
 	\label{fig:eksperyment41}
 \end{figure}
 
-W eksperymencie przyjęto częstotliwość sygnału $f_0 = 440\ \mathrm{Hz}$ oraz częstotliwość próbkowania $f_s = 22050\ \mathrm{Hz}$. Rozważono kilka wartości parametru $k \in \mathbb{Z}$, zarówno dodatnich jak i ujemnych, oraz różne amplitudy sygnału $f_d$.
+Po rekonstrukcji otrzymana zrekonstruowana funkcja osiąga nowe, niższe wartości niż oryginalna funkcja. Eksperyment pokazuje, że dobór zbyt małej częstotliwości próbkowania może spowodować, że rekonstrukcja będzie zupełnie inna od oryginalnej funkcji, a nawet będzie miała inny zakres przyjmowanych wartości.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\linewidth]{img/eksperyment_4_2}
-	\caption{Wpływ amplitudy fd przy stałym f0 dla k=0}
+	\caption{Przedstawienie zjawiska aliasingu}
 	\label{fig:eksperyment42}
 \end{figure}
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=\linewidth]{img/eksperyment_4_3}
-	\caption{Wpływ amplitudy fd przy stałym f0 dla k=-4}
-	\label{fig:eksperyment43}
-\end{figure}
-
-Dla $k=0$ otrzymano klasyczny przebieg sinusoidalny. Natomiast dla większych wartości $|k|$ zaobserwowano bardziej złożone wzorce, wynikające z aliasingu. 
-
-Pomimo różnic wizualnych, uzyskane przebiegi odpowiadają aliasom sygnałów o częstotliwościach $f_d = f_0 + k f_s$.
-
-Dodatkowo łatwo zauważyć, że zmiana amplitudy sygnału nie wpływa na zjawisko aliasingu, a jedynie na skalowanie wartości na osi $y$.
-
-
+Warto również zauważyć, że zjawisko aliasingu nie zależy od amplitudy, wykres \ref{fig:eksperyment41} i wykres \ref{fig:eksperyment42} różnią się jedynie podziałką osi y.
 
 	\section{Wnioski}
 	
