@@ -13,10 +13,35 @@ generate_uniform_noise = legacy_fn.generate_uniform_noise
 generate_gaussian_noise = legacy_fn.generate_gaussian_noise
 
 
+def generate_composite_sine(params: dict):
+    t1 = float(params.get("t1", 0.0))
+    d = float(params.get("d", 1.0))
+    fs = float(params.get("fs", 1000.0))
+
+    a1 = float(params.get("A1", 1.0))
+    f1 = float(params.get("f1", 50.0))
+    a2 = float(params.get("A2", 0.7))
+    f2 = float(params.get("f2", 120.0))
+    phi2 = float(params.get("phi2", np.pi / 4))
+
+    sample_count = max(2, int(d * fs))
+    t = np.linspace(t1, t1 + d, sample_count, endpoint=False)
+
+    y = a1 * np.sin(2 * np.pi * f1 * (t - t1)) + a2 * np.sin(
+        2 * np.pi * f2 * (t - t1) + phi2
+    )
+
+    return t, y
+
+
 SIGNAL_REGISTRY = {
     "Sinus": {
         "func": generate_sine,
         "params": ["A", "T"],
+    },
+    "Złożony (2 sinusy)": {
+        "func": generate_composite_sine,
+        "params": ["A1", "f1", "A2", "f2", "phi2"],
     },
     "Prostokątny": {
         "func": generate_square,

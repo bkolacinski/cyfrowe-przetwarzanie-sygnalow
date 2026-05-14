@@ -146,3 +146,45 @@ def estimate_delay_and_distance(
         "distance_m": float(distance_m),
         "peak_value": float(correlation[idx]),
     }
+
+
+def estimate_delay_and_distance_positive_lag(
+    correlation, lags, fs_hz: float, wave_speed: float
+):
+    correlation = np.asarray(correlation, dtype=float)
+    lags = np.asarray(lags, dtype=int)
+
+    mask_positive = lags >= 0
+    if not np.any(mask_positive):
+        return estimate_delay_and_distance(
+            correlation, lags, fs_hz, wave_speed
+        )
+
+    corr_pos = correlation[mask_positive]
+    lags_pos = lags[mask_positive]
+    pos_indices = np.where(mask_positive)[0]
+
+    local_idx = int(np.argmax(corr_pos))
+    idx = int(pos_indices[local_idx])
+    best_lag = int(lags_pos[local_idx])
+
+    delay_s = best_lag / fs_hz
+    distance_m = (wave_speed * delay_s) / 2.0
+
+    return {
+        "peak_index": idx,
+        "peak_lag": best_lag,
+        "delay_s": float(delay_s),
+        "distance_m": float(distance_m),
+        "peak_value": float(correlation[idx]),
+    }
+
+
+def trim_filter_edge_samples(y, M: int):
+    y = np.asarray(y, dtype=float)
+    edge = max(0, int(M) - 1)
+
+    if edge == 0 or len(y) <= 2 * edge:
+        return y
+
+    return y[edge:-edge]
