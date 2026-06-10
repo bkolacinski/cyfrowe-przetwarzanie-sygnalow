@@ -87,13 +87,14 @@ def _run_transform(
     signal: np.ndarray,
     wavelet_name: str,
     wavelet_levels: int,
+    inverse: bool = False,
 ):
     if transform_name == "DFT (definicja)":
-        return "spectrum", dft(signal)
+        return "spectrum", dft(signal, inverse=inverse)
     if transform_name == "FFT DIT":
-        return "spectrum", fft_dit(signal)
+        return "spectrum", fft_dit(signal, inverse=inverse)
     if transform_name == "FFT DIF":
-        return "spectrum", fft_dif(signal)
+        return "spectrum", fft_dif(signal, inverse=inverse)
     if transform_name == "DCT-II":
         return "real", dct_ii(np.real(signal))
     if transform_name == "FCT-II":
@@ -112,11 +113,16 @@ def _run_transform(
 
 
 def _reference_error(
-    transform_name: str, signal: np.ndarray, result: np.ndarray
+    transform_name: str, signal: np.ndarray, result: np.ndarray, inverse: bool = False
 ) -> str:
     try:
         if transform_name in {"DFT (definicja)", "FFT DIT", "FFT DIF"}:
-            reference = np.fft.fft(signal)
+            if inverse:
+                # No direct numpy equivalent for "inverse DFT" without normalising differently
+                # But we can use ifft
+                reference = np.fft.ifft(signal)
+            else:
+                reference = np.fft.fft(signal)
             return f"max|X-X_ref| = {np.max(np.abs(result - reference)):.3e}"
 
         if transform_name in {"DCT-II", "FCT-II"}:
@@ -285,9 +291,15 @@ st.pyplot(
 
 st.subheader("2) Transformacje")
 selected_transform = st.selectbox("Wybierz transformację", TRANSFORM_OPTIONS)
+
+is_fourier = selected_transform in {"DFT (definicja)", "FFT DIT", "FFT DIF"}
+inverse_transform = False
+if is_fourier:
+    inverse_transform = st.checkbox("Odwrotna transformacja (IDFT/IFFT)", value=False)
+
 compare_reference = st.checkbox("Porównaj z implementacją referencyjną", value=True)
 
-wavelet_name = st.selectbox("Wavelet", ["db4", "db6", "db8"], index=0)
+wavelet_name = st.selectbox("Wavelet", ["db2", "db3", "db4", "db6", "db8"], index=0)
 wavelet_levels = st.slider(
     "Poziomy dekompozycji wavelet",
     min_value=1,
@@ -300,6 +312,7 @@ transform_type, transform_result = _run_transform(
     signal=x_signal,
     wavelet_name=wavelet_name,
     wavelet_levels=wavelet_levels,
+    inverse=inverse_transform,
 )
 
 if transform_type == "wavelet":
@@ -330,13 +343,17 @@ else:
             plot_frequency_spectrum(
                 y_transformed,
                 fs_hz=FPR_HZ,
-                title=f"Widmo częstotliwościowe - {selected_transform}",
+                title=f"Widmo częstotliwościowe - {selected_transform}{' (Odwrotna)' if inverse_transform else ''}",
             ),
             width="stretch",
         )
 
     if compare_reference:
-        st.info(_reference_error(selected_transform, x_signal, y_transformed))
+        st.info(
+            _reference_error(
+                selected_transform, x_signal, y_transformed, inverse=inverse_transform
+            )
+        )
 
     st.download_button(
         label="Pobierz wynik transformacji (.csv)",

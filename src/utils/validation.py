@@ -16,10 +16,24 @@ def _max_abs_error(reference: np.ndarray, estimate: np.ndarray) -> float:
 
 def _validate_fourier(signal: np.ndarray) -> dict[str, float]:
     reference = np.fft.fft(signal)
+
+    # Forward
+    dft_fwd = dft(signal)
+    dit_fwd = fft_dit(signal)
+    dif_fwd = fft_dif(signal)
+
+    # Inverse
+    dft_inv = dft(dft_fwd, inverse=True)
+    dit_inv = fft_dit(dit_fwd, inverse=True)
+    dif_inv = fft_dif(dif_fwd, inverse=True)
+
     return {
-        "DFT vs numpy.fft": _max_abs_error(reference, dft(signal)),
-        "FFT DIT vs numpy.fft": _max_abs_error(reference, fft_dit(signal)),
-        "FFT DIF vs numpy.fft": _max_abs_error(reference, fft_dif(signal)),
+        "DFT vs numpy.fft": _max_abs_error(reference, dft_fwd),
+        "FFT DIT vs numpy.fft": _max_abs_error(reference, dit_fwd),
+        "FFT DIF vs numpy.fft": _max_abs_error(reference, dif_fwd),
+        "DFT -> IDFT error": _max_abs_error(signal, dft_inv),
+        "FFT DIT -> IFFT DIT error": _max_abs_error(signal, dit_inv),
+        "FFT DIF -> IFFT DIF error": _max_abs_error(signal, dif_inv),
     }
 
 
@@ -57,7 +71,7 @@ def _validate_walsh(signal: np.ndarray) -> dict[str, float]:
 
 def _validate_wavelets(signal: np.ndarray) -> dict[str, float]:
     results: dict[str, float] = {}
-    for name in ("db4", "db6", "db8"):
+    for name in ("db2", "db3", "db4", "db6", "db8"):
         approx, details = dwt_multilevel(signal, levels=2, wavelet_name=name)
         reconstructed = idwt_multilevel(approx, details, wavelet_name=name)
         results[f"DWT/IDWT reconstruction ({name})"] = _max_abs_error(

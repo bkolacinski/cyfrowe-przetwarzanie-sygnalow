@@ -23,18 +23,32 @@ class TestZadanie4Transforms(unittest.TestCase):
     def test_dft_matches_numpy_fft(self):
         for n in (2, 4, 8, 16, 32):
             x = self.rng.normal(size=n) + 1j * self.rng.normal(size=n)
+
+            # Forward
             reference = np.fft.fft(x)
             estimate = dft(x)
             self.assertLessEqual(np.max(np.abs(reference - estimate)), 1e-9)
 
+            # Inverse
+            roundtrip = dft(estimate, inverse=True)
+            self.assertLessEqual(np.max(np.abs(x - roundtrip)), 1e-9)
+
     def test_fft_dit_and_dif_match_numpy_fft(self):
         for n in (2, 4, 8, 16, 64, 256):
             x = self.rng.normal(size=n) + 1j * self.rng.normal(size=n)
+
+            # Forward
             reference = np.fft.fft(x)
-            err_dit = np.max(np.abs(reference - fft_dit(x)))
-            err_dif = np.max(np.abs(reference - fft_dif(x)))
-            self.assertLessEqual(err_dit, 1e-9)
-            self.assertLessEqual(err_dif, 1e-9)
+            dit_fwd = fft_dit(x)
+            dif_fwd = fft_dif(x)
+            self.assertLessEqual(np.max(np.abs(reference - dit_fwd)), 1e-9)
+            self.assertLessEqual(np.max(np.abs(reference - dif_fwd)), 1e-9)
+
+            # Inverse
+            dit_inv = fft_dit(dit_fwd, inverse=True)
+            dif_inv = fft_dif(dif_fwd, inverse=True)
+            self.assertLessEqual(np.max(np.abs(x - dit_inv)), 1e-9)
+            self.assertLessEqual(np.max(np.abs(x - dif_inv)), 1e-9)
 
     def test_dct_ii_matches_fct_ii(self):
         for n in (2, 4, 8, 16, 64):
@@ -50,11 +64,11 @@ class TestZadanie4Transforms(unittest.TestCase):
             fast = fwht(x)
             self.assertLessEqual(np.max(np.abs(classic - fast)), 1e-9)
 
-    def test_wavelet_roundtrip_db4_db6_db8(self):
+    def test_wavelet_roundtrip_all(self):
         n = 128
         x = self.rng.normal(size=n) + 1j * self.rng.normal(size=n)
 
-        for wavelet in ("db4", "db6", "db8"):
+        for wavelet in ("db2", "db3", "db4", "db6", "db8"):
             approx, details = dwt_multilevel(x, levels=3, wavelet_name=wavelet)
             reconstructed = idwt_multilevel(approx, details, wavelet_name=wavelet)
             self.assertLessEqual(np.max(np.abs(x - reconstructed)), 1e-8)

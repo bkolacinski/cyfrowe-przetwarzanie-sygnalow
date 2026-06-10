@@ -1,10 +1,32 @@
 from __future__ import annotations
 
+import math
+
 import numpy as np
 
 from .common import ensure_power_of_two
 
 DAUBECHIES_COEFFICIENTS: dict[str, np.ndarray] = {
+    "db2": np.array(
+        [
+            (1 + math.sqrt(3)) / (4 * math.sqrt(2)),
+            (3 + math.sqrt(3)) / (4 * math.sqrt(2)),
+            (3 - math.sqrt(3)) / (4 * math.sqrt(2)),
+            (1 - math.sqrt(3)) / (4 * math.sqrt(2)),
+        ],
+        dtype=np.float64,
+    ),
+    "db3": np.array(
+        [
+            0.332670552950,
+            0.806891509311,
+            0.459877502118,
+            -0.135011020010,
+            -0.085441273882,
+            0.035226291885,
+        ],
+        dtype=np.float64,
+    ),
     "db4": np.array(
         [
             -0.010597401785069032,

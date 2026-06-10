@@ -7,24 +7,32 @@ import numpy as np
 from .common import bit_reversal_indices, ensure_power_of_two
 
 
-def dft(signal: np.ndarray) -> np.ndarray:
-    """Discrete Fourier Transform computed directly from definition (O(N^2))."""
+def dft(signal: np.ndarray, inverse: bool = False) -> np.ndarray:
+    """Discrete Fourier Transform (or Inverse) computed directly from definition (O(N^2))."""
     x = np.asarray(signal, dtype=np.complex128)
     n = x.shape[0]
 
     result = np.zeros(n, dtype=np.complex128)
+    sign = 1.0 if inverse else -1.0
     for k in range(n):
         acc = 0.0j
         for m in range(n):
-            angle = -2.0 * math.pi * k * m / n
+            angle = sign * 2.0 * math.pi * k * m / n
             acc += x[m] * complex(math.cos(angle), math.sin(angle))
         result[k] = acc
+
+    if inverse:
+        result /= n
 
     return result
 
 
-def fft_dit(signal: np.ndarray) -> np.ndarray:
-    """Radix-2 FFT (Decimation in Time), iterative, bit-reversal + butterfly."""
+def fft_dit(signal: np.ndarray, inverse: bool = False) -> np.ndarray:
+    """
+    Radix-2 FFT (Decimation in Time), iterative, bit-reversal + butterfly.
+    Supports inverse transform. Operates on a copy to preserve input,
+    but the algorithm is structured to be in-place.
+    """
     x = np.asarray(signal, dtype=np.complex128)
     n = x.shape[0]
     ensure_power_of_two(n)
@@ -32,10 +40,14 @@ def fft_dit(signal: np.ndarray) -> np.ndarray:
     indices = bit_reversal_indices(n)
     a = x[np.array(indices, dtype=int)].copy()
 
+    sign = 1.0 if inverse else -1.0
+
     stage_size = 2
     while stage_size <= n:
         half = stage_size // 2
-        twiddle_base = np.exp(-2j * np.pi / stage_size)
+        # w = exp(sign * 2j * pi / stage_size)
+        angle = sign * 2.0 * np.pi / stage_size
+        twiddle_base = complex(math.cos(angle), math.sin(angle))
 
         for block_start in range(0, n, stage_size):
             twiddle = 1.0 + 0.0j
@@ -52,21 +64,30 @@ def fft_dit(signal: np.ndarray) -> np.ndarray:
 
         stage_size *= 2
 
+    if inverse:
+        a /= n
+
     return a
 
 
-def fft_dif(signal: np.ndarray) -> np.ndarray:
-    """Radix-2 FFT (Decimation in Frequency), iterative, butterfly + bit-reversal."""
+def fft_dif(signal: np.ndarray, inverse: bool = False) -> np.ndarray:
+    """
+    Radix-2 FFT (Decimation in Frequency), iterative, butterfly + bit-reversal.
+    Supports inverse transform. Operates on a copy to preserve input,
+    but the algorithm is structured to be in-place.
+    """
     x = np.asarray(signal, dtype=np.complex128)
     n = x.shape[0]
     ensure_power_of_two(n)
 
     a = x.copy()
-    stage_size = n
+    sign = 1.0 if inverse else -1.0
 
+    stage_size = n
     while stage_size >= 2:
         half = stage_size // 2
-        twiddle_base = np.exp(-2j * np.pi / stage_size)
+        angle = sign * 2.0 * np.pi / stage_size
+        twiddle_base = complex(math.cos(angle), math.sin(angle))
 
         for block_start in range(0, n, stage_size):
             twiddle = 1.0 + 0.0j
@@ -84,4 +105,9 @@ def fft_dif(signal: np.ndarray) -> np.ndarray:
         stage_size //= 2
 
     indices = bit_reversal_indices(n)
-    return a[np.array(indices, dtype=int)]
+    result = a[np.array(indices, dtype=int)]
+
+    if inverse:
+        result /= n
+
+    return result
